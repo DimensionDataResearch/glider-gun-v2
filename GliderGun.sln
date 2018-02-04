@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{30436182-656
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.KubeClient", "src\GliderGun.KubeClient\GliderGun.KubeClient.csproj", "{506C3561-07EF-4378-93DA-DCFBC821A699}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.Akka", "src\GliderGun.Akka\GliderGun.Akka.csproj", "{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,8 +34,21 @@ Global
 		{506C3561-07EF-4378-93DA-DCFBC821A699}.Release|x64.Build.0 = Release|x64
 		{506C3561-07EF-4378-93DA-DCFBC821A699}.Release|x86.ActiveCfg = Release|x86
 		{506C3561-07EF-4378-93DA-DCFBC821A699}.Release|x86.Build.0 = Release|x86
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Debug|x64.ActiveCfg = Debug|x64
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Debug|x64.Build.0 = Debug|x64
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Debug|x86.ActiveCfg = Debug|x86
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Debug|x86.Build.0 = Debug|x86
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Release|x64.ActiveCfg = Release|x64
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Release|x64.Build.0 = Release|x64
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Release|x86.ActiveCfg = Release|x86
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{506C3561-07EF-4378-93DA-DCFBC821A699} = {30436182-656E-40F6-BA5C-906BA5E6E53E}
+		{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED} = {30436182-656E-40F6-BA5C-906BA5E6E53E}
 	EndGlobalSection
 EndGlobal
