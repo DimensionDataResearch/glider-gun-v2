@@ -1,0 +1,6 @@
+<Project>
+  <!-- Common settings for test projects -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
