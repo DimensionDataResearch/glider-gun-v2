@@ -1,4 +1,4 @@
-REPO_ROOT=tintoy-ddr.azurecr.io/glider-gun
+REPO_ROOT=tintoyddr.azurecr.io/glider-gun
 REPO_BASE=${REPO_ROOT}/base
 
 VAULT2ENV_VERSION=v0.0.2
