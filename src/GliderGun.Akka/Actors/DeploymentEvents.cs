@@ -1,4 +1,6 @@
 using Akka.Actor;
+using KubeClient;
+using KubeClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,8 +9,6 @@ using System.Linq;
 namespace GliderGun.Akka.Actors
 {
     using Filters;
-    using KubeClient;
-    using KubeClient.Models;
     using Messages;
 
     // TODO: Consider adding reference-count for subscriptions and only watch for events from the Kubernetes API while there are active subscribers.

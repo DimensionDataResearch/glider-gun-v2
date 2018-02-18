@@ -1,3 +1,4 @@
+using KubeClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -5,8 +6,6 @@ using System.Linq;
 
 namespace GliderGun.Akka.Filters
 {
-    using KubeClient.Models;
-
     /// <summary>
     ///     A filter for events relating to Kubernetes resources.
     /// </summary>

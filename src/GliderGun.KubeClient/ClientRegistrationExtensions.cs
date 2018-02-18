@@ -1,8 +1,9 @@
-using System;
+using KubeClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 
-namespace GliderGun.KubeClient
+namespace GliderGun
 {
     /// <summary>
     ///     Extension methods for registering <see cref="KubeApiClient"/> as a component.

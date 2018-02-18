@@ -2,10 +2,11 @@ using Akka.Actor;
 using Akka.Event;
 using System;
 
+using KubeClient.Models;
+
 namespace GliderGun.Akka.Actors
 {
     using Filters;
-    using KubeClient.Models;
 
     // TODO: Custom message types for the various event types.
     // TODO: Consider adding support for resource namespacing.

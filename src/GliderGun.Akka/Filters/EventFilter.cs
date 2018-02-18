@@ -1,7 +1,7 @@
+using KubeClient.Models;
+
 namespace GliderGun.Akka.Filters
 {
-    using KubeClient.Models;
-
     /// <summary>
     ///     The base class for descriptions of how to filter events relating to Kubernetes resources.
     /// </summary>
