@@ -65,16 +65,6 @@ def main(terraform_state_file=None, cluster_manifest_file=None):
         if output == 'rke_worker_nodes':
             rke_worker_nodes.extend(value)
 
-    print('rke_control_plane_nodes = {0}'.format(
-        repr(rke_control_plane_nodes)
-    ))
-    print('rke_etcd_nodes = {0}'.format(
-        repr(rke_etcd_nodes)
-    ))
-    print('rke_worker_nodes = {0}'.format(
-        repr(rke_worker_nodes)
-    ))
-
     node_roles = defaultdict(set)
     for node_ip in rke_control_plane_nodes:
         node_roles[node_ip].add('controlplane')
@@ -99,6 +89,9 @@ def main(terraform_state_file=None, cluster_manifest_file=None):
 
     rke_manifest = {
         'nodes': rke_manifest_nodes,
+        'network': {
+            'plugin': 'flannel'
+        },
         'services': rke_manifest_services
     }
 

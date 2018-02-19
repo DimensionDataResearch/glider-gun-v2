@@ -14,4 +14,7 @@ RUN curl -L -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TER
     chmod a+x ./terraform && \
     mv ./terraform /usr/local/bin
 
-COPY scripts/generate-rke-config.py /usr/local/bin
+COPY scripts/generate-rke-config.py scripts/entry-point.sh /usr/local/bin/
+COPY ./terraform/* /deploy/
+
+ENTRYPOINT [ "/usr/local/bin/entry-point.sh" ]

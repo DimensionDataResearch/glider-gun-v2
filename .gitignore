@@ -2,6 +2,17 @@
 
 .DS_Store
 
+## Terraform
+
+.terraform/
+terraform.tfstate*
+terraform.tfvars
+
+# RKE
+
+cluster.yml
+kube_config_cluster.yml
+
 ## VS Code
 
 .vscode/*

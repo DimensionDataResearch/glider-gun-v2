@@ -3,7 +3,7 @@ FROM ubuntu:xenial
 VOLUME [ "/secrets", "/state", "/logs" ]
 
 RUN apt-get update && \
-    apt-get install -y python python-pip jq curl unzip && \
+    apt-get install -y openssh-client python python-pip jq curl unzip && \
     apt-get autoremove -y && \
     apt-get clean && \
     pip install --upgrade pip pyaml requests
