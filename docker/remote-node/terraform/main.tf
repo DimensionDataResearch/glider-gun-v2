@@ -4,18 +4,21 @@
 variable "image" {
   default = "ubuntu-16-04-x64"
 }
+variable "dns_subdomain" { /* provided elsewhere (e.g. TF_VAR_dns_subdomain environment variable) */ }
 variable "kube_host_size" {
   default = "4gb" # AF: This can't be smaller than 2gb or RKE freaks out when Kubernetes runs out of memory.
 }
 variable "kube_host_count" {
   default = 3
 }
-variable "ssh_key_fingerprints" {
-  default = [
-    "5a:7b:99:36:e8:86:e0:4f:0f:7a:ce:cf:cb:00:b9:61"
-  ]
-}
 variable "ssh_key_file" { /* provided elsewhere */ }
+variable "ssh_public_key_file" { /* provided elsewhere */ }
+
+# Our SSH key
+resource "digitalocean_ssh_key" "kube_host" {
+  name        = "kube-host.glider-gun.${var.dns_subdomain}"
+  public_key  = "${file(var.ssh_public_key_file)}"
+}
 
 # The virtual server (Digital Ocean).
 resource "digitalocean_droplet" "kube_host" {
@@ -27,7 +30,7 @@ resource "digitalocean_droplet" "kube_host" {
   size      = "${var.kube_host_size}"
 
   ssh_keys  = [
-    "${var.ssh_key_fingerprints}"
+    "${digitalocean_ssh_key.kube_host.fingerprint}"
   ]
 
   connection {
@@ -36,8 +39,9 @@ resource "digitalocean_droplet" "kube_host" {
     private_key = "${file(var.ssh_key_file)}"
   }
 
+  # Install Docker
   provisioner "remote-exec" {
-    # Install Docker
+    
     inline = [
       "apt-get update",
       "apt-get install -y --no-install-recommends apt-transport-https curl software-properties-common",
@@ -48,6 +52,19 @@ resource "digitalocean_droplet" "kube_host" {
       "apt-get -y install docker-engine"
     ]
   }
+
+  # Create host directories
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir -p /etc/glider-gun /var/run/glider-gun/state"
+    ]
+  }
+
+  # Copy SSH key
+  provisioner "file" {
+    source      = "${var.ssh_key_file}"
+    destination = "/etc/glider-gun/keys/ssh"
+  }
 }
 
 # DNS record for the virtual server (CloudFlare).
@@ -55,7 +72,7 @@ resource "cloudflare_record" "kube_host" {
     count   = "${digitalocean_droplet.kube_host.count}"
 
     domain  = "tintoy.io"
-    name    = "${element(digitalocean_droplet.kube_host.*.name, count.index)}.yo-dawg"
+    name    = "${element(digitalocean_droplet.kube_host.*.name, count.index)}.${var.dns_subdomain}"
     value   = "${element(digitalocean_droplet.kube_host.*.ipv4_address, count.index)}"
     type    = "A"
     ttl     = 120
@@ -74,18 +91,18 @@ output "kube_host_ips" {
 
 output "kube_host_names" {
   value = [
-    "${formatlist("%s.yo-dawg.tintoy.io", digitalocean_droplet.kube_host.*.name)}"
+    "${formatlist("%s.%s.tintoy.io", digitalocean_droplet.kube_host.*.name, var.dns_subdomain)}"
   ]
 }
 
 output "rke_control_plane_nodes" {
   value = [
-    "${digitalocean_droplet.kube_host.*.ipv4_address}"
+    "${element(digitalocean_droplet.kube_host.*.ipv4_address, 0)}"
   ]
 }
 output "rke_etcd_nodes" {
   value = [
-    "${digitalocean_droplet.kube_host.*.ipv4_address}"
+    "${element(digitalocean_droplet.kube_host.*.ipv4_address, 0)}"
   ]
 }
 output "rke_worker_nodes" {

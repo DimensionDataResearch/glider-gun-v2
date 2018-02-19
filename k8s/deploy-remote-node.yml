@@ -1,0 +1,38 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: deploy-glider-gun-remote
+spec:
+  completions: 1
+  template:
+    metadata:
+      name: deploy-glider-gun-remote
+    spec:
+      containers:
+      - name: deploy-glider-gun-remote
+        image: tintoyddr.azurecr.io/glider-gun/remote/node:latest
+        env:
+          - name: TF_VAR_dns_subdomain
+            value: yo-dawg
+        volumeMounts:
+          - name: state
+            mountPath: /state
+          - name: ssh-key
+            mountPath: /secrets/id_rsa
+
+      # Time out after 20 minutes.
+      activeDeadlineSeconds: 1200
+
+      # Do not restart containers after they exit
+      restartPolicy: Never
+
+      volumes:
+        - name: state
+          hostPath:
+            path: /var/run/glider-gun/state
+            type: Directory
+
+        - name: ssh-key
+          hostPath:
+            path: /etc/glider-gun/keys/ssh
+            type: File

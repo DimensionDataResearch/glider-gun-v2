@@ -4,9 +4,14 @@
 
 ## Terraform
 
-.terraform/
+.terraform*
 terraform.tfstate*
 terraform.tfvars
+
+# SSH
+
+id_rsa
+id_rsa.pub
 
 # RKE
 
