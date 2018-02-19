@@ -3,10 +3,25 @@
 
 import click
 import json
+import yaml
+
+from collections import defaultdict
+
+
+RKE_IMAGES = {
+    'etcd': 'quay.io/coreos/etcd:latest',
+    'kube-api': 'rancher/k8s:v1.8.3-rancher2',
+    'kube-controller': 'rancher/k8s:v1.8.3-rancher2',
+    'scheduler': 'rancher/k8s:v1.8.3-rancher2',
+    'kubelet': 'rancher/k8s:v1.8.3-rancher2',
+    'kubeproxy': 'rancher/k8s:v1.8.3-rancher2'
+}
+
 
 @click.command()
 @click.option('--terraform-state-file', required=True)
-def main(terraform_state_file=None):
+@click.option('--cluster-manifest-file', default='cluster.yml')
+def main(terraform_state_file=None, cluster_manifest_file=None):
     '''
     Generate RKE cluster configuration from Terraform outputs.
 
@@ -60,7 +75,42 @@ def main(terraform_state_file=None):
         repr(rke_worker_nodes)
     ))
 
-    # TODO: Group nodes by role and generate cluster.yml.
+    node_roles = defaultdict(set)
+    for node_ip in rke_control_plane_nodes:
+        node_roles[node_ip].add('controlplane')
+    for node_ip in rke_etcd_nodes:
+        node_roles[node_ip].add('etcd')
+    for node_ip in rke_worker_nodes:
+        node_roles[node_ip].add('worker')
+
+    rke_manifest_nodes = []
+    for (node_ip, roles) in node_roles.items():
+        rke_manifest_nodes.append({
+            'address': str(node_ip),
+            'user': 'root',
+            'role': list(roles)
+        })
+
+    rke_manifest_services = {}
+    for (service, image) in RKE_IMAGES.items():
+        rke_manifest_services[service] = {
+            'image': image
+        }
+
+    rke_manifest = {
+        'nodes': rke_manifest_nodes,
+        'services': rke_manifest_services
+    }
+
+    print('Writing RKE cluster manifest...')
+
+    with open(cluster_manifest_file, 'w') as manifest_file:
+        manifest_file.write('# RKE Manifest\n')
+        yaml.dump(rke_manifest, manifest_file,
+            default_flow_style=False
+        )
+
+    print('Done.')
 
 if __name__ == '__main__':
     main()
