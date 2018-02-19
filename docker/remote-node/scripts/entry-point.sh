@@ -22,7 +22,7 @@ pushd /deploy
 
 terraform apply -auto-approve -state=$TF_STATE_FILE
 terraform refresh -state=$TF_STATE_FILE
-generate-rke-config.py --terraform-state-file $TF_STATE_FILE --rke-manifest-file $RKE_MANIFEST_FILE
+generate-rke-config.py --terraform-state-file $TF_STATE_FILE --ssh-key-file=$SSH_SECURE_KEY_FILE --rke-manifest-file $RKE_MANIFEST_FILE
 
 popd # /deploy
 

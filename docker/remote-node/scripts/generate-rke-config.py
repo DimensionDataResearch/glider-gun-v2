@@ -6,6 +6,7 @@ import json
 import yaml
 
 from collections import defaultdict
+from os import path
 
 
 RKE_IMAGES = {
@@ -20,8 +21,9 @@ RKE_IMAGES = {
 
 @click.command()
 @click.option('--terraform-state-file', required=True)
+@click.option('--ssh-key-file', required=True)
 @click.option('--cluster-manifest-file', default='cluster.yml')
-def main(terraform_state_file=None, cluster_manifest_file=None):
+def main(terraform_state_file=None, ssh_key_file=None, cluster_manifest_file=None):
     '''
     Generate RKE cluster configuration from Terraform outputs.
 
@@ -36,6 +38,10 @@ def main(terraform_state_file=None, cluster_manifest_file=None):
 
     print("Terraform state file is '{0}'.".format(
         terraform_state_file
+    ))
+
+    print("SSH key file is '{0}'.".format(
+        ssh_key_file
     ))
 
     with open(terraform_state_file) as state_file:
@@ -92,6 +98,7 @@ def main(terraform_state_file=None, cluster_manifest_file=None):
         'network': {
             'plugin': 'flannel'
         },
+        'ssh_key_file': path.abspath(ssh_key_file),
         'services': rke_manifest_services
     }
 
