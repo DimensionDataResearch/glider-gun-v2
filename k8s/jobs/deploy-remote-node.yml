@@ -14,6 +14,10 @@ spec:
         env:
           - name: TF_VAR_dns_subdomain
             value: yo-dawg
+          - name: TF_VAR_ssh_key_file
+            value: /secrets/id_rsa
+          - name: TF_VAR_ssh_public_key_file
+            value: /secrets/id_rsa.pub
         volumeMounts:
           - name: state
             mountPath: /state
