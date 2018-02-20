@@ -17,4 +17,7 @@ RUN curl -L -o /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TER
 COPY scripts/generate-rke-config.py scripts/entry-point.sh /usr/local/bin/
 COPY ./terraform/* /deploy/
 
+WORKDIR /deploy
+RUN terraform init
+
 ENTRYPOINT [ "/bin/bash", "/usr/local/bin/entry-point.sh" ]
