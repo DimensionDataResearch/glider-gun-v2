@@ -98,7 +98,7 @@ def main(terraform_state_file=None, ssh_key_file=None, cluster_manifest_file=Non
         'network': {
             'plugin': 'flannel'
         },
-        'ssh_key_file': path.abspath(ssh_key_file),
+        'ssh_key_file': str(path.abspath(ssh_key_file)),
         'services': rke_manifest_services
     }
 
