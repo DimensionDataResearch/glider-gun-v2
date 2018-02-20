@@ -95,6 +95,7 @@ output "kube_host_names" {
   ]
 }
 
+# Outputs used to generate RKE cluster manifest
 output "rke_control_plane_nodes" {
   value = [
     "${element(digitalocean_droplet.kube_host.*.ipv4_address, 0)}"
