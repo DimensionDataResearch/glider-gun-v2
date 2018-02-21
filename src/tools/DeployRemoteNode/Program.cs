@@ -1,15 +1,15 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
-namespace GliderGun.TemplateTestHarness
+namespace GliderGun.Tools.DeployRemoteNode
 {
     /// <summary>
-    ///     A test harness for executing Glider Gun templates.
+    ///     Tool for deploying a new Kubernetes cluster (with 1, 3, or 5 hosts) running the Glider Gun remote agent.
     /// </summary>
-    public static class Program
+    static class Program
     {
         /// <summary>
         ///     The main program entry-point.
@@ -22,6 +22,11 @@ namespace GliderGun.TemplateTestHarness
         /// </returns>
         static async Task<int> Main(string[] commandLineArguments)
         {
+            // Show help if no arguments are specified.
+            bool showHelp = commandLineArguments.Length == 0;
+            if (showHelp)
+                commandLineArguments = new[] { "--help" };
+
             try
             {
                 SynchronizationContext.SetSynchronizationContext(
@@ -30,21 +35,12 @@ namespace GliderGun.TemplateTestHarness
 
                 ProgramOptions options = ProgramOptions.Parse(commandLineArguments);
                 if (options == null)
-                    return ExitCodes.InvalidArguments;
+                    return showHelp ? ExitCodes.Success : ExitCodes.InvalidArguments;
 
                 ConfigureLogging(options);
 
-                Log.Information("Executing template from image {TemplateImage} as a Kubernetes Job...",
-                    options.Image
-                );
+                Log.Information("TODO: Implement.");
 
-                FileInfo templateParametersFile = new FileInfo(options.ParametersFrom);
-                Log.Information("Template parameters will be loaded from {TemplateParametersFile} as a Kubernetes Job...",
-                    templateParametersFile.FullName
-                );
-
-                Log.Warning("TODO: Implement!");
-                
                 await Task.Yield();
 
                 Log.Information("Done.");
@@ -53,7 +49,7 @@ namespace GliderGun.TemplateTestHarness
             }
             catch (Exception unexpectedError)
             {
-                Log.Error(unexpectedError, "An unexpected error occurred while running the template.");
+                Log.Error(unexpectedError, "An unexpected error occurred while deploying the remote node.");
 
                 return ExitCodes.UnexpectedError;
             }

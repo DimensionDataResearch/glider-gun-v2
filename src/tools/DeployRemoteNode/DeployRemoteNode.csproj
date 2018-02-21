@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+
+    <AssemblyName>deploy-remote-node</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <ProjectReference Include="..\..\GliderGun.KubeClient\GliderGun.KubeClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.2.1" />
+      <PackageReference Include="HTTPlease" Version="1.1.0" />
+      <PackageReference Include="KubeClient" Version="0.2.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="2.0.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+      <PackageReference Include="Serilog" Version="2.5.0" />
+      <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
+      <PackageReference Include="System.Reactive" Version="3.1.1" />
+  </ItemGroup>
+
+  <Import Project="..\Common.props" />
+</Project>
