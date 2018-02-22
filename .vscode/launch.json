@@ -10,9 +10,19 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/test/GliderGun.TemplateTestHarness/bin/Debug/netcoreapp2.0/gg-run-template.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/test/GliderGun.TemplateTestHarness",
+            "program": "${workspaceFolder}/src/tools/DeployRemoteNode/bin/Debug/netcoreapp2.0/deploy-remote-node.dll",
+            "args": [
+                "-w",
+                "D:\\Stage\\rke\\gg-deploy",
+                "-k",
+                "C:\\Users\\tintoy\\.ssh\\id_rsa",
+                "-d",
+                "yo-dawg",
+                "-v",
+                "--kube-context",
+                "rke"
+            ],
+            "cwd": "${workspaceFolder}/src/tools/DeployRemoteNode",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,

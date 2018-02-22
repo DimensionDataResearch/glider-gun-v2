@@ -1,8 +1,12 @@
-﻿using System;
+﻿using KubeClient;
+using KubeClient.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Serilog;
 
 namespace GliderGun.Tools.DeployRemoteNode
 {
@@ -39,9 +43,25 @@ namespace GliderGun.Tools.DeployRemoteNode
 
                 ConfigureLogging(options);
 
-                Log.Information("TODO: Implement.");
+                using (ServiceProvider serviceProvider = BuildServiceProvider(options))
+                {
+                    KubeApiClient client = serviceProvider.GetRequiredService<KubeApiClient>();
+                    
+                    // TODO: Create and monitor job.
+                    List<PodV1> pods = await client.PodsV1().List(kubeNamespace: "kube-system");
+                    
+                    Log.Information("Found {PodCount} pods in kube-system.", pods.Count);
+                    
+                    foreach (PodV1 pod in pods)
+                    {
+                        Log.Information("{PodStatus} Pod {PodName} ({PodContainerCount} containers).",
+                            pod.Status.Phase,
+                            pod.Metadata.Name,
+                            pod.Spec.Containers.Count
+                        );
+                    }
 
-                await Task.Yield();
+                }
 
                 Log.Information("Done.");
 
@@ -49,9 +69,14 @@ namespace GliderGun.Tools.DeployRemoteNode
             }
             catch (Exception unexpectedError)
             {
+                Console.WriteLine(unexpectedError);
                 Log.Error(unexpectedError, "An unexpected error occurred while deploying the remote node.");
 
                 return ExitCodes.UnexpectedError;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
             }
         }
 
@@ -74,6 +99,33 @@ namespace GliderGun.Tools.DeployRemoteNode
                 loggerConfiguration.MinimumLevel.Verbose();
 
             Log.Logger = loggerConfiguration.CreateLogger();
+        }
+
+        /// <summary>
+        ///     Build the application service provider.
+        /// </summary>
+        /// <param name="options">
+        ///     Program options.
+        /// </param>
+        /// <returns>
+        ///     The service provider, as a <see cref="ServiceProvider"/>.
+        /// </returns>
+        static ServiceProvider BuildServiceProvider(ProgramOptions options)
+        {
+            var services = new ServiceCollection();
+
+            services.AddOptions();
+            services.AddLogging(loggers =>
+            {
+                loggers.AddSerilog(Log.Logger);
+            });
+            services.AddKubeClientOptionsFromKubeConfig(
+                kubeConfigFileName: options.KubeConfigFile,
+                kubeContextName: options.KubeContextName
+            );
+            services.AddKubeClient();
+
+            return services.BuildServiceProvider();
         }
 
         /// <summary>

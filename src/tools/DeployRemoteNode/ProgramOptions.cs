@@ -22,7 +22,7 @@ namespace GliderGun.Tools.DeployRemoteNode
         /// <summary>
         ///     The path of the SSH public key file to use for initial communications with target hosts.
         /// </summary>
-        [Option("ssh-public-key-file", HelpText = "The path of the SSH public key file to use for initial communications with target hosts. If not specified, a '.pub' extension will be appended to the name of the SSH private key file.")]
+        [Option("ssh-public-key-file", Default = null, HelpText = "The path of the SSH public key file to use for initial communications with target hosts. If not specified, a '.pub' extension will be appended to the name of the SSH private key file.")]
         public string SshPublicKeyFile { get; set; }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace GliderGun.Tools.DeployRemoteNode
         /// <summary>
         ///     The tag for the deployment image to use.
         /// </summary>
-        [Option('i', "image-tag", Default = "latest", Required = true, HelpText = "The tag for the deployment image to use.")]
+        [Option('i', "image-tag", Default = "latest", HelpText = "The tag for the deployment image to use.")]
         public string ImageTag { get; set; }
 
         /// <summary>
@@ -46,13 +46,13 @@ namespace GliderGun.Tools.DeployRemoteNode
         /// <summary>
         ///     The Kubernetes client configuration file to use (defaults to ~/.kube/config).
         /// </summary>
-        [Option("kube-config-file", HelpText = "The Kubernetes client configuration file to use (defaults to ~/.kube/config).")]
+        [Option("kube-config-file", Default = null, HelpText = "The Kubernetes client configuration file to use (defaults to ~/.kube/config).")]
         public string KubeConfigFile { get; set; }
 
         /// <summary>
         ///     The name of a specific Kubernetes client configuration context to use (if not specified, the current context will be used).
         /// </summary>
-        [Option('k', "kube-context", HelpText = "The name of a specific Kubernetes client configuration context to use (if not specified, the current context will be used).")]
+        [Option("kube-context", Default = null, HelpText = "The name of a specific Kubernetes client configuration context to use (if not specified, the current context will be used).")]
         public string KubeContextName { get; set; }
 
         /// <summary>
