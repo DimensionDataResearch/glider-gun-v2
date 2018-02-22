@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 
 namespace GliderGun.Tools.DeployRemoteNode
 {
+    using KubeTemplates;
+
     /// <summary>
     ///     Tool for deploying a new Kubernetes cluster (with 1, 3, or 5 hosts) running the Glider Gun remote agent.
     /// </summary>
@@ -118,6 +120,10 @@ namespace GliderGun.Tools.DeployRemoteNode
             services.AddLogging(loggers =>
             {
                 loggers.AddSerilog(Log.Logger);
+            });
+            services.AddKubeTemplates(new KubeTemplateOptions
+            {
+                DefaultNamespace = "default"
             });
             services.AddKubeClientOptionsFromKubeConfig(
                 kubeConfigFileName: options.KubeConfigFile,

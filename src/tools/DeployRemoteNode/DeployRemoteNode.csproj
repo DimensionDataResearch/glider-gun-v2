@@ -8,6 +8,7 @@
 
   <ItemGroup>
       <ProjectReference Include="..\..\GliderGun.KubeClient\GliderGun.KubeClient.csproj" />
+      <ProjectReference Include="..\..\GliderGun.KubeTemplates\GliderGun.KubeTemplates.csproj" />
   </ItemGroup>
 
   <ItemGroup>
