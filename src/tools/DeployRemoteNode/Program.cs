@@ -77,7 +77,63 @@ namespace GliderGun.Tools.DeployRemoteNode
 
                     Log.Information("Created deployment job {JobName}.", deploymentJob.Metadata.Name);
 
-                    // TODO: Wait for job to complete.
+                    while (deploymentJob != null)
+                    {
+                        await Task.Delay(
+                            TimeSpan.FromSeconds(2) // Poll period
+                        );
+
+                        Log.Verbose("Polling status for deployment job {JobName} in namespace {KubeNamespace}...",
+                            deploymentJob.Metadata.Name,
+                            deploymentJob.Metadata.Namespace
+                        );
+
+                        deploymentJob = await client.JobsV1().Get(jobName);
+                        if (deploymentJob == null)
+                        {
+                            Log.Error("Cannot find deployment job {JobName} in namespace {KubeNamespace}.",
+                                deploymentJob.Metadata.Name,
+                                deploymentJob.Metadata.Namespace
+                            );
+
+                            return ExitCodes.UnexpectedError;
+                        }
+                        
+                        if (deploymentJob.Status.Active > 0)
+                        {
+                            Log.Verbose("Deployment job {JobName} is still active.",
+                                deploymentJob.Metadata.Name
+                            );
+
+                            continue;
+                        }
+                        
+                        if (deploymentJob.Status.Succeeded > 0)
+                        {
+                            Log.Information("Deployment job {JobName} completed successfully.",
+                                deploymentJob.Metadata.Name
+                            );
+
+                            break;
+                        }
+                        
+                        if (deploymentJob.Status.Failed > 0)
+                        {
+                            Log.Error("Deployment job {JobName} failed.",
+                                deploymentJob.Metadata.Name
+                            );
+                            foreach (JobConditionV1 jobCondition in deploymentJob.Status.Conditions)
+                            {
+                                Log.Error("Deployment job {JobName} failed ({Reason}): {ErrorMessage}.",
+                                    deploymentJob.Metadata.Name,
+                                    jobCondition.Reason,
+                                    jobCondition.Message
+                                );
+                            }
+
+                            return ExitCodes.JobFailed;
+                        } 
+                    }
                 }
 
                 Log.Information("Done.");
@@ -165,7 +221,12 @@ namespace GliderGun.Tools.DeployRemoteNode
             /// <summary>
             ///     One or more command-line arguments were missing or invalid.
             /// </summary>
-            public const int InvalidArguments = 4;
+            public const int InvalidArguments = 1;
+
+            /// <summary>
+            ///     The deployment job failed.
+            /// </summary>
+            public const int JobFailed = 2;
 
             /// <summary>
             ///     An unexpected error occurred during program execution.
