@@ -38,10 +38,22 @@ namespace GliderGun.Tools.DeployRemoteNode
         public string ImageTag { get; set; }
 
         /// <summary>
+        ///     A name for the new deployment job.
+        /// </summary>
+        [Option('n', "job-name", Default = "deploy-glider-gun-remote", HelpText = "A name for the new deployment job.")]
+        public string JobName { get; set; }
+
+        /// <summary>
+        ///     The name of the target Kubernetes namespace.
+        /// </summary>
+        [Option("kube-namespace", Default = "default", HelpText = "The name of the target Kubernetes namespace.")]
+        public string KubeNamespace { get; set; }
+
+        /// <summary>
         ///     The job timeout, in minutes.
         /// </summary>
-        [Option('t', "timeout", Default = 10.0 * 60, HelpText = "The job timeout, in minutes.")]
-        public double Timeout { get; set; }
+        [Option('t', "timeout", Default = 10 * 60, HelpText = "The job timeout, in minutes.")]
+        public int Timeout { get; set; }
 
         /// <summary>
         ///     The Kubernetes client configuration file to use (defaults to ~/.kube/config).

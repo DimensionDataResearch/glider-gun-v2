@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,21 +47,37 @@ namespace GliderGun.Tools.DeployRemoteNode
                 using (ServiceProvider serviceProvider = BuildServiceProvider(options))
                 {
                     KubeApiClient client = serviceProvider.GetRequiredService<KubeApiClient>();
+                    KubeResources kubeResources = serviceProvider.GetRequiredService<KubeResources>();
+
                     
-                    // TODO: Create and monitor job.
-                    List<PodV1> pods = await client.PodsV1().List(kubeNamespace: "kube-system");
+                    string jobName = kubeResources.Names.SafeId(options.JobName);
                     
-                    Log.Information("Found {PodCount} pods in kube-system.", pods.Count);
-                    
-                    foreach (PodV1 pod in pods)
+                    JobV1 existingJob = await client.JobsV1().Get(jobName);
+                    if (existingJob != null)
                     {
-                        Log.Information("{PodStatus} Pod {PodName} ({PodContainerCount} containers).",
-                            pod.Status.Phase,
-                            pod.Metadata.Name,
-                            pod.Spec.Containers.Count
+                        Log.Information("Found existing job {JobName} in namespace {KubeNamespace}; deleting...",
+                            existingJob.Metadata.Name,
+                            existingJob.Metadata.Namespace
+                        );
+
+                        await client.JobsV1().Delete(jobName,
+                            propagationPolicy: DeletePropagationPolicy.Foreground
+                        );
+
+                        Log.Information("Deleted existing job {JobName}.",
+                            existingJob.Metadata.Name,
+                            existingJob.Metadata.Namespace
                         );
                     }
 
+                    Log.Information("Creating deployment job {JobName}...", jobName);
+
+                    JobV1 deploymentJob = kubeResources.DeployGliderGunRemoteJob(options);
+                    deploymentJob = await client.JobsV1().Create(deploymentJob);
+
+                    Log.Information("Created deployment job {JobName}.", deploymentJob.Metadata.Name);
+
+                    // TODO: Wait for job to complete.
                 }
 
                 Log.Information("Done.");
@@ -121,15 +136,18 @@ namespace GliderGun.Tools.DeployRemoteNode
             {
                 loggers.AddSerilog(Log.Logger);
             });
-            services.AddKubeTemplates(new KubeTemplateOptions
-            {
-                DefaultNamespace = "default"
-            });
+
             services.AddKubeClientOptionsFromKubeConfig(
                 kubeConfigFileName: options.KubeConfigFile,
-                kubeContextName: options.KubeContextName
+                kubeContextName: options.KubeContextName,
+                defaultNamespace: options.KubeNamespace
             );
             services.AddKubeClient();
+
+            services.AddKubeTemplates(new KubeTemplateOptions
+            {
+                DefaultNamespace = options.KubeNamespace
+            });
 
             return services.BuildServiceProvider();
         }
