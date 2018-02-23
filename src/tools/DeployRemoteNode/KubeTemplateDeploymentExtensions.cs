@@ -76,11 +76,12 @@ namespace GliderGun.Tools.DeployRemoteNode
                     Spec = new PodSpecV1
                     {
                         RestartPolicy = "Never",
+                        ImagePullSecrets = specs.ImagePullSecrets(options),
                         Containers = new List<ContainerV1>
                         {
                             new ContainerV1
                             {
-                                Image = "tintoyddr.azurecr.io/glider-gun/remote/node:latest",
+                                Image = $"tintoyddr.azurecr.io/glider-gun/remote/node:{options.ImageTag}",
                                 ImagePullPolicy = "IfNotPresent",
                                 Env = new List<EnvVarV1>
                                 {
@@ -127,7 +128,7 @@ namespace GliderGun.Tools.DeployRemoteNode
                                 Name = "state",
                                 HostPath = new HostPathVolumeSourceV1
                                 {
-                                    Path = Path.GetFullPath(
+                                    Path = ToUnixPath(
                                         Path.Combine(options.WorkingDirectory, "state")
                                     )
                                 }
@@ -137,7 +138,7 @@ namespace GliderGun.Tools.DeployRemoteNode
                                 Name = "ssh-key",
                                 HostPath = new HostPathVolumeSourceV1
                                 {
-                                    Path = Path.GetFullPath(options.SshPrivateKeyFile)
+                                    Path = ToUnixPath(options.SshPrivateKeyFile)
                                 }
                             },
                             new VolumeV1
@@ -145,7 +146,7 @@ namespace GliderGun.Tools.DeployRemoteNode
                                 Name = "ssh-public-key",
                                 HostPath = new HostPathVolumeSourceV1
                                 {
-                                    Path = Path.GetFullPath(
+                                    Path = ToUnixPath(
                                         options.SshPublicKeyFile ?? options.SshPrivateKeyFile + ".pub"
                                     )
                                 }
@@ -154,6 +155,55 @@ namespace GliderGun.Tools.DeployRemoteNode
                     }
                 }
             };
+        }
+
+        /// <summary>
+        ///     Generate a list of <see cref="LocalObjectReferenceV1"/>s representing image-pull secrets.
+        /// </summary>
+        /// <param name="specs">
+        ///     The Kubernetes specification template service.
+        /// </param>
+        /// <param name="options">
+        ///     The current options for the deployment tool.
+        /// </param>
+        /// <returns>
+        ///     The list of <see cref="LocalObjectReferenceV1"/>s, or <c>null</c> if <see cref="ProgramOptions.ImagePullSecretName"/> has not been specified.
+        /// </returns>
+        public static List<LocalObjectReferenceV1> ImagePullSecrets(this KubeSpecs specs, ProgramOptions options)
+        {
+            if (specs == null)
+                throw new ArgumentNullException(nameof(specs));
+            
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+            
+            if (String.IsNullOrWhiteSpace(options.ImagePullSecretName))
+                return null;
+
+            return new List<LocalObjectReferenceV1>
+            {
+                new LocalObjectReferenceV1
+                {
+                    Name = options.ImagePullSecretName
+                }
+            };
+        }
+
+        /// <summary>
+        ///     Convert the specified path to UNIX format.
+        /// </summary>
+        /// <param name="path">
+        ///     The path to convert.
+        /// </param>
+        /// <returns>
+        ///     The converted path.
+        /// </returns>
+        static string ToUnixPath(string path)
+        {
+            if (path == null)
+                return path;
+
+            return path.Replace('\\', '/');
         }
     }
 }

@@ -8,21 +8,21 @@ namespace GliderGun.Tools.DeployRemoteNode
     class ProgramOptions
     {
         /// <summary>
-        ///     The path of the working directory (for job state and output).
+        ///     The path of the working directory on the Kubernetes host (for job state and output).
         /// </summary>
-        [Option('w', "work-dir", Required = true, HelpText = "The path of the working directory (for job state and output).")]
+        [Option('w', "work-dir", Required = true, HelpText = "The path of the working directory on the Kubernetes host (for job state and output).")]
         public string WorkingDirectory { get; set; }
 
         /// <summary>
-        ///     The path of the SSH private key file to use for initial communications with target hosts.
+        ///     The path of the SSH private key file on the Kubernetes host to use for initial communications with target hosts.
         /// </summary>
-        [Option('k', "ssh-key-file", Required = true, HelpText = "The path of the SSH private key file to use for initial communications with target hosts.")]
+        [Option('k', "ssh-key-file", Required = true, HelpText = "The path of the SSH private key file on the Kubernetes host to use for initial communications with target hosts.")]
         public string SshPrivateKeyFile { get; set; }
 
         /// <summary>
-        ///     The path of the SSH public key file to use for initial communications with target hosts.
+        ///     The path of the SSH public key file on the Kubernetes host to use for initial communications with target hosts.
         /// </summary>
-        [Option("ssh-public-key-file", Default = null, HelpText = "The path of the SSH public key file to use for initial communications with target hosts. If not specified, a '.pub' extension will be appended to the name of the SSH private key file.")]
+        [Option("ssh-public-key-file", Default = null, HelpText = "The path of the SSH public key file on the Kubernetes host to use for initial communications with target hosts. If not specified, a '.pub' extension will be appended to the name of the SSH private key file.")]
         public string SshPublicKeyFile { get; set; }
 
         /// <summary>
@@ -36,6 +36,12 @@ namespace GliderGun.Tools.DeployRemoteNode
         /// </summary>
         [Option('i', "image-tag", Default = "latest", HelpText = "The tag for the deployment image to use.")]
         public string ImageTag { get; set; }
+
+        /// <summary>
+        ///     The name of a secret to use for when pulling the deployment image.
+        /// </summary>
+        [Option("image-pull-secret", Default = null, HelpText = "The name of a secret to use for when pulling the deployment image.")]
+        public string ImagePullSecretName { get; set; }
 
         /// <summary>
         ///     A name for the new deployment job.
