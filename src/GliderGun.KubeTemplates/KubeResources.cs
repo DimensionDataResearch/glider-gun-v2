@@ -57,10 +57,10 @@ namespace GliderGun.KubeTemplates
         public KubeTemplateOptions KubeOptions { get; }
 
         /// <summary>
-        ///     Create a new <see cref="SecretV1"/>.
+        ///     Create a new opaque <see cref="SecretV1"/>.
         /// </summary>
         /// <param name="name">
-        ///     The deployment name.
+        ///     The secret name.
         /// </param>
         /// <param name="data">
         ///     The secret data.
@@ -77,7 +77,7 @@ namespace GliderGun.KubeTemplates
         /// <returns>
         ///     The configured <see cref="SecretV1"/>.
         /// </returns>
-        public SecretV1 CredentialsSecret(string name, Dictionary<string, string> data, Dictionary<string, string> labels = null, Dictionary<string, string> annotations = null, string kubeNamespace = null)
+        public SecretV1 OpaqueSecret(string name, Dictionary<string, string> data, Dictionary<string, string> labels = null, Dictionary<string, string> annotations = null, string kubeNamespace = null)
         {
             if (String.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Argument cannot be null, empty, or entirely composed of whitespace: 'name'.", nameof(name));

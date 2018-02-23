@@ -14,15 +14,15 @@ namespace GliderGun.Tools.DeployRemoteNode
         public string WorkingDirectory { get; set; }
 
         /// <summary>
-        ///     The path of the SSH private key file on the Kubernetes host to use for initial communications with target hosts.
+        ///     The local path of the SSH private key file to use for initial communications with target hosts.
         /// </summary>
-        [Option('k', "ssh-key-file", Required = true, HelpText = "The path of the SSH private key file on the Kubernetes host to use for initial communications with target hosts.")]
+        [Option('k', "ssh-key-file", Required = true, HelpText = "The local path of the SSH private key file to use for initial communications with target hosts.")]
         public string SshPrivateKeyFile { get; set; }
 
         /// <summary>
-        ///     The path of the SSH public key file on the Kubernetes host to use for initial communications with target hosts.
+        ///     The local path of the SSH public key file to use for initial communications with target hosts.
         /// </summary>
-        [Option("ssh-public-key-file", Default = null, HelpText = "The path of the SSH public key file on the Kubernetes host to use for initial communications with target hosts. If not specified, a '.pub' extension will be appended to the name of the SSH private key file.")]
+        [Option("ssh-public-key-file", Default = null, HelpText = "The local path of the SSH public key file to use for initial communications with target hosts.")]
         public string SshPublicKeyFile { get; set; }
 
         /// <summary>

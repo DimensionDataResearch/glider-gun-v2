@@ -13,6 +13,46 @@ namespace GliderGun.Tools.DeployRemoteNode
     static class KubeTemplateDeploymentExtensions
     {
         /// <summary>
+        ///     Create a <see cref="SecretV1"/> for deploying a Glider Gun Remote node.
+        /// </summary>
+        /// <param name="resources">
+        ///     The Kubernetes resource template service.
+        /// </param>
+        /// <param name="options">
+        ///     The current options for the deployment tool.
+        /// </param>
+        /// <returns>
+        ///     The configured <see cref="SecretV1"/>.
+        /// </returns>
+        public static SecretV1 DeployGliderGunRemoteSecret(this KubeResources resources, ProgramOptions options)
+        {
+            if (resources == null)
+                throw new ArgumentNullException(nameof(resources));
+            
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            return resources.OpaqueSecret(
+                name: resources.Names.DeployGliderGunRemoteSecret(options),
+                kubeNamespace: options.KubeNamespace,
+                labels: new Dictionary<string, string>
+                {
+                    ["glider-gun.job.name"] = options.JobName,
+                    ["glider-gun.job.type"] = "deploy.glider-gun.remote"
+                },
+                data: new Dictionary<string, string>
+                {
+                    ["id_rsa"] = Convert.ToBase64String(
+                        File.ReadAllBytes(options.SshPrivateKeyFile)
+                    ),
+                    ["id_rsa.pub"] = Convert.ToBase64String(
+                        File.ReadAllBytes(options.SshPublicKeyFile ?? options.SshPrivateKeyFile + ".pub")
+                    )
+                }
+            );
+        }
+
+        /// <summary>
         ///     Create a <see cref="JobV1"/> for deploying a Glider Gun Remote node.
         /// </summary>
         /// <param name="resources">
@@ -33,9 +73,14 @@ namespace GliderGun.Tools.DeployRemoteNode
                 throw new ArgumentNullException(nameof(options));
 
             return resources.Job(
-                name: resources.Names.SafeId(options.JobName),
+                name: resources.Names.DeployGliderGunRemoteJob(options),
+                kubeNamespace: options.KubeNamespace,
                 spec: resources.Specs.DeployGliderGunRemoteJob(options),
-                kubeNamespace: options.KubeNamespace
+                labels: new Dictionary<string, string>
+                {
+                    ["glider-gun.job.name"] = options.JobName,
+                    ["glider-gun.job.type"] = "deploy.glider-gun.remote"
+                }
             );
         }
 
@@ -70,6 +115,7 @@ namespace GliderGun.Tools.DeployRemoteNode
                         Name = "deploy-remote",
                         Labels = new Dictionary<string, string>
                         {
+                            ["glider-gun.job.name"] = options.JobName,
                             ["glider-gun.job.type"] = "deploy.glider-gun.remote"
                         }
                     },
@@ -110,13 +156,9 @@ namespace GliderGun.Tools.DeployRemoteNode
                                     },
                                     new VolumeMountV1
                                     {
-                                        Name = "ssh-key",
-                                        MountPath = "/secrets/id_rsa"
-                                    },
-                                    new VolumeMountV1
-                                    {
-                                        Name = "ssh-public-key",
-                                        MountPath = "/secrets/id_rsa.pub"
+                                        Name = "secrets",
+                                        MountPath = "/secrets",
+                                        ReadOnly = true
                                     }
                                 }
                             }
@@ -135,26 +177,62 @@ namespace GliderGun.Tools.DeployRemoteNode
                             },
                             new VolumeV1
                             {
-                                Name = "ssh-key",
-                                HostPath = new HostPathVolumeSourceV1
+                                Name = "secrets",
+                                Secret = new SecretVolumeSourceV1
                                 {
-                                    Path = ToUnixPath(options.SshPrivateKeyFile)
-                                }
-                            },
-                            new VolumeV1
-                            {
-                                Name = "ssh-public-key",
-                                HostPath = new HostPathVolumeSourceV1
-                                {
-                                    Path = ToUnixPath(
-                                        options.SshPublicKeyFile ?? options.SshPrivateKeyFile + ".pub"
-                                    )
+                                    SecretName = specs.Names.SafeId(options.JobName)
                                 }
                             }
                         }
                     }
                 }
             };
+        }
+
+        /// <summary>
+        ///     Compute the name for the Secret used to deploy a Glider Gun Remote node.
+        /// </summary>
+        /// <param name="names">
+        ///     The Kubernetes resource-naming service.
+        /// </param>
+        /// <param name="options">
+        ///     The current options for the deployment tool.
+        /// </param>
+        /// <returns>
+        ///     The secret name.
+        /// </returns>
+        public static string DeployGliderGunRemoteSecret(this KubeNames names, ProgramOptions options)
+        {
+            if (names == null)
+                throw new ArgumentNullException(nameof(names));
+            
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+            
+            return names.SafeId(options.JobName);
+        }
+
+        /// <summary>
+        ///     Compute the name for the Job used to deploy a Glider Gun Remote node.
+        /// </summary>
+        /// <param name="names">
+        ///     The Kubernetes resource-naming service.
+        /// </param>
+        /// <param name="options">
+        ///     The current options for the deployment tool.
+        /// </param>
+        /// <returns>
+        ///     The secret name.
+        /// </returns>
+        public static string DeployGliderGunRemoteJob(this KubeNames names, ProgramOptions options)
+        {
+            if (names == null)
+                throw new ArgumentNullException(nameof(names));
+            
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+            
+            return names.SafeId(options.JobName);
         }
 
         /// <summary>
