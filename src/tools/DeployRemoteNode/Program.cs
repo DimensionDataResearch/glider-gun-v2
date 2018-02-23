@@ -1,4 +1,5 @@
-﻿using KubeClient;
+﻿using HTTPlease;
+using KubeClient;
 using KubeClient.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -73,7 +74,21 @@ namespace GliderGun.Tools.DeployRemoteNode
                     Log.Information("Creating deployment job {JobName}...", jobName);
 
                     JobV1 deploymentJob = kubeResources.DeployGliderGunRemoteJob(options);
-                    deploymentJob = await client.JobsV1().Create(deploymentJob);
+                    
+                    try
+                    {
+                        deploymentJob = await client.JobsV1().Create(deploymentJob);
+                    }
+                    catch (HttpRequestException<StatusV1> createJobFailed)
+                    {
+                        Log.Error(createJobFailed, "Failed to create Kubernetes Job {JobName} for deployment ({Reason}): {ErrorMessage}",
+                            jobName,
+                            createJobFailed.Response.Reason,
+                            createJobFailed.Response.Message
+                        );
+
+                        return ExitCodes.JobFailed;
+                    }
 
                     Log.Information("Created deployment job {JobName}.", deploymentJob.Metadata.Name);
 
