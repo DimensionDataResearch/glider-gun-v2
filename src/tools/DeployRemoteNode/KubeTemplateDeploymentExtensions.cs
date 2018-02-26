@@ -106,8 +106,9 @@ namespace GliderGun.Tools.DeployRemoteNode
 
             return new JobSpecV1
             {
-                ActiveDeadlineSeconds = options.Timeout,
                 Completions = 1,
+                Parallelism = 1,
+                ActiveDeadlineSeconds = options.Timeout,
                 Template = new PodTemplateSpecV1
                 {
                     Metadata = new ObjectMetaV1
@@ -127,7 +128,8 @@ namespace GliderGun.Tools.DeployRemoteNode
                         {
                             new ContainerV1
                             {
-                                Image = $"tintoyddr.azurecr.io/glider-gun/remote/node:{options.ImageTag}",
+                                Name = "deployment",
+                                Image = $"{options.ImageName}:{options.ImageTag}",
                                 ImagePullPolicy = "IfNotPresent",
                                 Env = new List<EnvVarV1>
                                 {
@@ -171,8 +173,11 @@ namespace GliderGun.Tools.DeployRemoteNode
                                 HostPath = new HostPathVolumeSourceV1
                                 {
                                     Path = ToUnixPath(
-                                        Path.Combine(options.WorkingDirectory, "state")
-                                    )
+                                        Path.Combine(options.StateDirectory, "state",
+                                            specs.Names.SafeId(options.JobName)
+                                        )
+                                    ),
+                                    Type = "DirectoryOrCreate"
                                 }
                             },
                             new VolumeV1

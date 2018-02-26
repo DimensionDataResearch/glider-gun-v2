@@ -87,8 +87,6 @@ namespace GliderGun.KubeTemplates
 
             return new SecretV1
             {
-                ApiVersion = "v1",
-                Kind = "Secret",
                 Type = "Opaque",
                 Metadata = new ObjectMetaV1
                 {
@@ -132,8 +130,6 @@ namespace GliderGun.KubeTemplates
 
             return new PersistentVolumeClaimV1
             {
-                ApiVersion = "v1",
-                Kind = "PersistentVolumeClaim",
                 Metadata = new ObjectMetaV1
                 {
                     Name = name,
@@ -176,8 +172,6 @@ namespace GliderGun.KubeTemplates
 
             return new DeploymentV1Beta1
             {
-                ApiVersion = "apps/v1beta1",
-                Kind = "Deployment",
                 Metadata = new ObjectMetaV1
                 {
                     Name = name,
@@ -220,8 +214,6 @@ namespace GliderGun.KubeTemplates
 
             return new ReplicationControllerV1
             {
-                ApiVersion = "v1",
-                Kind = "ReplicationController",
                 Metadata = new ObjectMetaV1
                 {
                     Name = name,
@@ -264,8 +256,6 @@ namespace GliderGun.KubeTemplates
 
             return new ServiceV1
             {
-                ApiVersion = "v1",
-                Kind = "Service",
                 Metadata = new ObjectMetaV1
                 {
                     Name = name,
@@ -308,8 +298,6 @@ namespace GliderGun.KubeTemplates
 
             return new JobV1
             {
-                ApiVersion = "batch/v1",
-                Kind = "Job",
                 Metadata = new ObjectMetaV1
                 {
                     Name = name,

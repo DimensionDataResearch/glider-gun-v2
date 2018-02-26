@@ -49,10 +49,9 @@ namespace GliderGun.Tools.DeployRemoteNode
                 {
                     KubeApiClient client = serviceProvider.GetRequiredService<KubeApiClient>();
                     KubeResources kubeResources = serviceProvider.GetRequiredService<KubeResources>();
-
                     
                     string jobName = kubeResources.Names.SafeId(options.JobName);
-                    
+
                     JobV1 existingJob = await client.JobsV1().Get(jobName);
                     if (existingJob != null)
                     {
@@ -71,10 +70,47 @@ namespace GliderGun.Tools.DeployRemoteNode
                         );
                     }
 
+                    string secretName = kubeResources.Names.DeployGliderGunRemoteSecret(options);
+
+                    SecretV1 existingSecret = await client.SecretsV1().Get(secretName);
+                    if (existingSecret != null)
+                    {
+                        Log.Information("Found existing secret {SecretName} in namespace {KubeNamespace}; deleting...",
+                            existingSecret.Metadata.Name,
+                            existingSecret.Metadata.Namespace
+                        );
+
+                        await client.SecretsV1().Delete(secretName);
+
+                        Log.Information("Deleted existing secret {SecretName}.",
+                            existingSecret.Metadata.Name,
+                            existingSecret.Metadata.Namespace
+                        );
+                    }
+
+                    Log.Information("Creating deployment secret {SecretName}...", secretName);
+                    
+                    SecretV1 deploymentSecret = kubeResources.DeployGliderGunRemoteSecret(options);
+                    try
+                    {
+                        deploymentSecret = await client.SecretsV1().Create(deploymentSecret);
+                    }
+                    catch (HttpRequestException<StatusV1> createSecretFailed)
+                    {
+                        Log.Error(createSecretFailed, "Failed to create Kubernetes Secret {SecretName} for deployment ({Reason}): {ErrorMessage}",
+                            secretName,
+                            createSecretFailed.Response.Reason,
+                            createSecretFailed.Response.Message
+                        );
+
+                        return ExitCodes.JobFailed;
+                    }
+
+                    Log.Information("Created deployment secret {SecretName}.", deploymentSecret.Metadata.Name);
+
                     Log.Information("Creating deployment job {JobName}...", jobName);
 
                     JobV1 deploymentJob = kubeResources.DeployGliderGunRemoteJob(options);
-                    
                     try
                     {
                         deploymentJob = await client.JobsV1().Create(deploymentJob);
@@ -147,7 +183,25 @@ namespace GliderGun.Tools.DeployRemoteNode
                             }
 
                             return ExitCodes.JobFailed;
-                        } 
+                        }
+                    }
+
+                    if (deploymentJob != null)
+                    {
+                        List<PodV1> matchingPods = await client.PodsV1().List(
+                            labelSelector: $"glider-gun.job.name={jobName}",
+                            kubeNamespace: options.KubeNamespace
+                        );
+                        if (matchingPods.Count > 0)
+                        {
+                            string log = await client.PodsV1().Logs(
+                                name: matchingPods[matchingPods.Count - 1].Metadata.Name
+                            );
+                            Log.Information("Got pod log:");
+                            Log.Information("{PodLog}", log);
+                        }
+                        else
+                            Log.Warning("Failed to find any corresponding pod for job {JobName}.", jobName);
                     }
                 }
 
@@ -155,9 +209,17 @@ namespace GliderGun.Tools.DeployRemoteNode
 
                 return ExitCodes.Success;
             }
+            catch (HttpRequestException<StatusV1> kubeRequestError)
+            {
+                Log.Error(kubeRequestError, "A Kubernetes API request failed while deploying the remote node ({Reason}): {ErrorMessage}",
+                    kubeRequestError.Response.Reason,
+                    kubeRequestError.Response.Message
+                );
+
+                return ExitCodes.JobFailed;
+            }
             catch (Exception unexpectedError)
             {
-                Console.WriteLine(unexpectedError);
                 Log.Error(unexpectedError, "An unexpected error occurred while deploying the remote node.");
 
                 return ExitCodes.UnexpectedError;

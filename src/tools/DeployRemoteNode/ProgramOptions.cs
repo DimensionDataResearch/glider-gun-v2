@@ -8,10 +8,13 @@ namespace GliderGun.Tools.DeployRemoteNode
     class ProgramOptions
     {
         /// <summary>
-        ///     The path of the working directory on the Kubernetes host (for job state and output).
+        ///     The path of the state directory on the Kubernetes host (for job state and output).
         /// </summary>
-        [Option('w', "work-dir", Required = true, HelpText = "The path of the working directory on the Kubernetes host (for job state and output).")]
-        public string WorkingDirectory { get; set; }
+        /// <remarks>
+        ///     The job name will be appended to this directory.
+        /// </remarks>
+        [Option('s', "state-dir", Required = true, HelpText = "The path of the state directory on the Kubernetes host (for job state and output).")]
+        public string StateDirectory { get; set; }
 
         /// <summary>
         ///     The local path of the SSH private key file to use for initial communications with target hosts.
@@ -32,9 +35,15 @@ namespace GliderGun.Tools.DeployRemoteNode
         public string DnsSubdomain { get; set; }
 
         /// <summary>
-        ///     The tag for the deployment image to use.
+        ///     The name of the deployment image to use.
         /// </summary>
-        [Option('i', "image-tag", Default = "latest", HelpText = "The tag for the deployment image to use.")]
+        [Option("image-name", Default = "tintoyddr.azurecr.io/glider-gun/remote/node", HelpText = "The name of the deployment image to use.")]
+        public string ImageName { get; set; }
+
+        /// <summary>
+        ///     The tag of the deployment image to use.
+        /// </summary>
+        [Option("image-tag", Default = "latest", HelpText = "The tag of the deployment image to use.")]
         public string ImageTag { get; set; }
 
         /// <summary>
