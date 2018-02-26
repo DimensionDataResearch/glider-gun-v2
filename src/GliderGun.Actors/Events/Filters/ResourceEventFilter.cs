@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace GliderGun.Akka.Filters
+namespace GliderGun.Actors.Events.Filters
 {
     /// <summary>
     ///     A filter for events relating to Kubernetes resources.

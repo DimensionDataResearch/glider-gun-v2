@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace GliderGun.Akka.Actors
+namespace GliderGun.Actors.Events
 {
     using Filters;
     using Messages;
@@ -15,9 +15,9 @@ namespace GliderGun.Akka.Actors
     // TODO: Consider implementing messages to pause / resume watching for events.
 
     /// <summary>
-    ///     Actor that publishes events relating to Kubernetes Deployments in the default namespace.
+    ///     Actor that publishes events relating to Kubernetes Jobs in the default namespace.
     /// </summary>
-    public class DeploymentEvents
+    public class JobEvents
         : ReceiveActorEx
     {
         /// <summary>
@@ -26,22 +26,22 @@ namespace GliderGun.Akka.Actors
         IDisposable _eventSourceSubscription;
 
         /// <summary>
-        ///     Create a new <see cref="DeploymentEvents"/> actor.
+        ///     Create a new <see cref="JobEvents"/> actor.
         /// </summary>
         /// <param name="kubeClient">
         ///     The <see cref="KubeApiClient"/> used to communicate with the Kubernetes API.
         /// </param>
-        public DeploymentEvents(KubeApiClient kubeClient)
+        public JobEvents(KubeApiClient kubeClient)
         {
             if (kubeClient == null)
                 throw new ArgumentNullException(nameof(kubeClient));
             
             KubeClient = kubeClient;
-            EventSource = KubeClient.DeploymentsV1Beta1().WatchAll(
+            EventSource = KubeClient.JobsV1().WatchAll(
                 kubeNamespace: "default"
             );
 
-            Receive<ResourceEventV1<DeploymentV1Beta1>>(resourceEvent =>
+            Receive<ResourceEventV1<JobV1>>(resourceEvent =>
             {
                 EventBus.Publish(resourceEvent);
             });
@@ -72,7 +72,7 @@ namespace GliderGun.Akka.Actors
         /// <summary>
         ///     An <see cref="IObservable"/> that manages the underlying subscription to the Kubernetes API.
         /// </summary>
-        IObservable<ResourceEventV1<DeploymentV1Beta1>> EventSource { get; }
+        IObservable<ResourceEventV1<JobV1>> EventSource { get; }
 
         /// <summary>
         ///     Called when the actor is started.
@@ -109,30 +109,30 @@ namespace GliderGun.Akka.Actors
         ///     The underlying event bus.
         /// </summary>
         class ResourceEventBus
-            : ResourceEventBus<DeploymentV1Beta1, ResourceEventFilter>
+            : ResourceEventBus<JobV1, ResourceEventFilter>
         {
             /// <summary>
             ///     Get the metadata for the specified resource.
             /// </summary>
-            /// <param name="deployment">
-            ///     A <see cref="DeploymentV1Beta1"/> representing the target Deployment.
+            /// <param name="replicationController">
+            ///     A <see cref="JobV1"/> representing the target Job.
             /// </param>
             /// <returns>
             ///     The resource metadata.
             /// </returns>
-            protected override ObjectMetaV1 GetMetadata(DeploymentV1Beta1 deployment)
+            protected override ObjectMetaV1 GetMetadata(JobV1 replicationController)
             {
-                if (deployment == null)
-                    throw new ArgumentNullException(nameof(deployment));
+                if (replicationController == null)
+                    throw new ArgumentNullException(nameof(replicationController));
                 
-                return deployment.Metadata;
+                return replicationController.Metadata;
             }
 
             /// <summary>
-            ///     Create a filter that exactly matches the specified Deployment metadata.
+            ///     Create a filter that exactly matches the specified Job metadata.
             /// </summary>
             /// <param name="metadata">
-            ///     The Deployment metadata to match.
+            ///     The Job metadata to match.
             /// </param>
             /// <returns>
             ///     A <see cref="ResourceEventFilter"/> describing the filter.

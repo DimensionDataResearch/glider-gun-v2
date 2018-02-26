@@ -4,7 +4,7 @@ using System;
 
 using KubeClient.Models;
 
-namespace GliderGun.Akka.Actors
+namespace GliderGun.Actors.Events
 {
     using Filters;
 

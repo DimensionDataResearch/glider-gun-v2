@@ -1,23 +1,23 @@
 using Akka.Actor;
-using KubeClient;
-using KubeClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace GliderGun.Akka.Actors
+namespace GliderGun.Actors.Events
 {
     using Filters;
+    using KubeClient;
+    using KubeClient.Models;
     using Messages;
 
     // TODO: Consider adding reference-count for subscriptions and only watch for events from the Kubernetes API while there are active subscribers.
     // TODO: Consider implementing messages to pause / resume watching for events.
 
     /// <summary>
-    ///     Actor that publishes events relating to Kubernetes Jobs in the default namespace.
+    ///     Actor that publishes events relating to Kubernetes ReplicationControllers in the default namespace.
     /// </summary>
-    public class JobEvents
+    public class ReplicationControllerEvents
         : ReceiveActorEx
     {
         /// <summary>
@@ -26,22 +26,22 @@ namespace GliderGun.Akka.Actors
         IDisposable _eventSourceSubscription;
 
         /// <summary>
-        ///     Create a new <see cref="JobEvents"/> actor.
+        ///     Create a new <see cref="ReplicationControllerEvents"/> actor.
         /// </summary>
         /// <param name="kubeClient">
         ///     The <see cref="KubeApiClient"/> used to communicate with the Kubernetes API.
         /// </param>
-        public JobEvents(KubeApiClient kubeClient)
+        public ReplicationControllerEvents(KubeApiClient kubeClient)
         {
             if (kubeClient == null)
                 throw new ArgumentNullException(nameof(kubeClient));
             
             KubeClient = kubeClient;
-            EventSource = KubeClient.JobsV1().WatchAll(
+            EventSource = KubeClient.ReplicationControllersV1().WatchAll(
                 kubeNamespace: "default"
             );
 
-            Receive<ResourceEventV1<JobV1>>(resourceEvent =>
+            Receive<ResourceEventV1<ReplicationControllerV1>>(resourceEvent =>
             {
                 EventBus.Publish(resourceEvent);
             });
@@ -72,7 +72,7 @@ namespace GliderGun.Akka.Actors
         /// <summary>
         ///     An <see cref="IObservable"/> that manages the underlying subscription to the Kubernetes API.
         /// </summary>
-        IObservable<ResourceEventV1<JobV1>> EventSource { get; }
+        IObservable<ResourceEventV1<ReplicationControllerV1>> EventSource { get; }
 
         /// <summary>
         ///     Called when the actor is started.
@@ -109,18 +109,18 @@ namespace GliderGun.Akka.Actors
         ///     The underlying event bus.
         /// </summary>
         class ResourceEventBus
-            : ResourceEventBus<JobV1, ResourceEventFilter>
+            : ResourceEventBus<ReplicationControllerV1, ResourceEventFilter>
         {
             /// <summary>
             ///     Get the metadata for the specified resource.
             /// </summary>
             /// <param name="replicationController">
-            ///     A <see cref="JobV1"/> representing the target Job.
+            ///     A <see cref="ReplicationControllerV1"/> representing the target ReplicationController.
             /// </param>
             /// <returns>
             ///     The resource metadata.
             /// </returns>
-            protected override ObjectMetaV1 GetMetadata(JobV1 replicationController)
+            protected override ObjectMetaV1 GetMetadata(ReplicationControllerV1 replicationController)
             {
                 if (replicationController == null)
                     throw new ArgumentNullException(nameof(replicationController));
@@ -129,10 +129,10 @@ namespace GliderGun.Akka.Actors
             }
 
             /// <summary>
-            ///     Create a filter that exactly matches the specified Job metadata.
+            ///     Create a filter that exactly matches the specified ReplicationController metadata.
             /// </summary>
             /// <param name="metadata">
-            ///     The Job metadata to match.
+            ///     The ReplicationController metadata to match.
             /// </param>
             /// <returns>
             ///     A <see cref="ResourceEventFilter"/> describing the filter.

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace GliderGun.Akka.Actors
+namespace GliderGun.Actors.Events
 {
     using Filters;
     using KubeClient;

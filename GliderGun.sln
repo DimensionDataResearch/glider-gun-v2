@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{30436182-656
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.KubeClient", "src\GliderGun.KubeClient\GliderGun.KubeClient.csproj", "{506C3561-07EF-4378-93DA-DCFBC821A699}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.Akka", "src\GliderGun.Akka\GliderGun.Akka.csproj", "{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.Actors", "src\GliderGun.Actors\GliderGun.Actors.csproj", "{9BE8D097-7AA2-4DAD-9A38-6CC144A9CBED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7AD71FB0-6424-4255-81B6-B8638541B515}"
 EndProject

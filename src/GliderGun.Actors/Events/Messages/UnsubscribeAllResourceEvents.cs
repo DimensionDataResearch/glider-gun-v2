@@ -1,4 +1,4 @@
-namespace GliderGun.Akka.Messages
+namespace GliderGun.Actors.Events.Messages
 {
     /// <summary>
     ///     Unsubscribe from events for all resources.

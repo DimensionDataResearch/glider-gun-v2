@@ -1,25 +1,25 @@
 using System;
 
-namespace GliderGun.Akka.Messages
+namespace GliderGun.Actors.Events.Messages
 {
     using Filters;
 
     /// <summary>
-    ///     Unsubscribe from resource events.
+    ///     Subscribe to resource events.
     /// </summary>
     /// <typeparam name="TFilter">
     ///     The type that describes event filters.
     /// </typeparam>
-    public class UnsubscribeResourceEvents<TFilter>
+    public class SubscribeResourceEvents<TFilter>
         where TFilter : EventFilter
     {
         /// <summary>
-        ///     Create a new <see cref="UnsubscribeResourceEvents"/> message.
+        ///     Create a new <see cref="SubscribeResourceEvents"/> message.
         /// </summary>
         /// <param name="filter">
         ///     A <typeparamref name="TFilter"/> representing the filter for events.
         /// </param>
-        public UnsubscribeResourceEvents(TFilter filter)
+        public SubscribeResourceEvents(TFilter filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -34,12 +34,12 @@ namespace GliderGun.Akka.Messages
     }
 
     /// <summary>
-    ///     Factory for <see cref="UnsubscribeResourceEvents{TFilter}"/> messages.
+    ///     Factory for <see cref="SubscribeResourceEvents{TFilter}"/> messages.
     /// </summary>
-    public static class UnsubscribeResourceEvents
+    public static class SubscribeResourceEvents
     {
         /// <summary>
-        ///     Create a new <see cref="UnsubscribeResourceEvents{TFilter}"/> message.
+        ///     Create a new <see cref="SubscribeResourceEvents{TFilter}"/> message.
         /// </summary>
         /// <typeparam name="TFilter">
         ///     The type that describes event filters.
@@ -48,12 +48,12 @@ namespace GliderGun.Akka.Messages
         ///     A <typeparamref name="TFilter"/> representing the filter for events.
         /// </param>
         /// <returns>
-        ///     The new <see cref="UnsubscribeResourceEvents{TFilter}"/> message.
+        ///     The new <see cref="SubscribeResourceEvents{TFilter}"/> message.
         /// </returns>
-        public static UnsubscribeResourceEvents<TFilter> Create<TFilter>(TFilter filter)
+        public static SubscribeResourceEvents<TFilter> Create<TFilter>(TFilter filter)
             where TFilter : EventFilter
         {
-            return new UnsubscribeResourceEvents<TFilter>(filter);
+            return new SubscribeResourceEvents<TFilter>(filter);
         }
     }
 }
