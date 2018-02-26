@@ -189,7 +189,7 @@ namespace GliderGun.Tools.DeployRemoteNode
                     if (deploymentJob != null)
                     {
                         List<PodV1> matchingPods = await client.PodsV1().List(
-                            labelSelector: $"glider-gun.job.name={jobName}",
+                            labelSelector: $"job-name={jobName}",
                             kubeNamespace: options.KubeNamespace
                         );
                         if (matchingPods.Count > 0)
