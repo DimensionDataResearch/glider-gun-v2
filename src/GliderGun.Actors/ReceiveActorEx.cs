@@ -2,7 +2,7 @@ using Akka.Actor;
 using Akka.Event;
 using Akka.Logger.Serilog;
 
-namespace GliderGun.Actors.Events
+namespace GliderGun.Actors
 {
     /// <summary>
     ///     The base class for Receive-style actors.
