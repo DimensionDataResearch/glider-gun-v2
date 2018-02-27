@@ -2,6 +2,7 @@
 using KubeClient;
 using KubeClient.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -46,11 +47,12 @@ namespace GliderGun.Tools.DeployRemoteNode
                 ConfigureLogging(options);
 
                 using (ServiceProvider serviceProvider = BuildServiceProvider(options))
+                using (AutoResetEvent done = new AutoResetEvent(initialState: false))
                 {
                     KubeApiClient client = serviceProvider.GetRequiredService<KubeApiClient>();
                     KubeResources kubeResources = serviceProvider.GetRequiredService<KubeResources>();
                     
-                    string jobName = kubeResources.Names.SafeId(options.JobName);
+                    string jobName = kubeResources.Names.DeployGliderGunRemoteJob(options);
 
                     JobV1 existingJob = await client.JobsV1().Get(jobName);
                     if (existingJob != null)
@@ -108,6 +110,71 @@ namespace GliderGun.Tools.DeployRemoteNode
 
                     Log.Information("Created deployment secret {SecretName}.", deploymentSecret.Metadata.Name);
 
+                    // Watch for job's associated pod to start, then monitor the pod's log until it completes.
+                    IDisposable jobLogWatch = null;
+                    IDisposable jobPodWatch = client.PodsV1().WatchAll(
+                        labelSelector: $"job-name={jobName}",
+                        kubeNamespace: options.KubeNamespace
+                    ).Subscribe(
+                        podEvent =>
+                        {
+                            if (jobLogWatch != null)
+                                return;
+
+                            PodV1 jobPod = podEvent.Resource;
+                            if (jobPod.Status.Phase != "Pending")
+                            {
+                                Log.Information("Job {JobName} has started.", jobName);
+
+                                Log.Verbose("Hook up log monitor for Pod {PodName} of Job {JobName}...",
+                                    jobPod.Metadata.Name,
+                                    jobName
+                                );
+
+                                jobLogWatch = client.PodsV1().StreamLogs(
+                                    name: jobPod.Metadata.Name,
+                                    kubeNamespace: jobPod.Metadata.Namespace
+                                ).Subscribe(
+                                    logEntry =>
+                                    {
+                                        Log.Information("[{PodName}] {LogEntry}", jobPod.Metadata.Name, logEntry);
+                                    },
+                                    error =>
+                                    {
+                                        if (error is HttpRequestException<StatusV1> requestError)
+                                        {
+                                            Log.Error(requestError, "Kubernetes API request error ({Reason}): {ErrorMessage:l}",
+                                                requestError.Response.Reason,
+                                                requestError.Response.Message
+                                            );
+                                        }
+                                        else
+                                            Log.Error(error, "JobLog Error");
+                                    },
+                                    () =>
+                                    {
+                                        Log.Information("[{PodName}] <end of log>", jobPod.Metadata.Name);
+                                        
+                                        done.Set();
+                                    }
+                                );
+
+                                Log.Information("Monitoring log for Pod {PodName} of Job {JobName}.",
+                                    jobPod.Metadata.Name,
+                                    jobName
+                                );
+                            }
+                        },
+                        error =>
+                        {
+                            Log.Error(error, "PodWatch Error");
+                        },
+                        () =>
+                        {
+                            Log.Information("PodWatch End");
+                        }
+                    );
+
                     Log.Information("Creating deployment job {JobName}...", jobName);
 
                     JobV1 deploymentJob = kubeResources.DeployGliderGunRemoteJob(options);
@@ -128,80 +195,61 @@ namespace GliderGun.Tools.DeployRemoteNode
 
                     Log.Information("Created deployment job {JobName}.", deploymentJob.Metadata.Name);
 
-                    while (deploymentJob != null)
+                    TimeSpan timeout = TimeSpan.FromSeconds(options.Timeout);
+                    Log.Information("Waiting up to {TimeoutSeconds} seconds for deployment job {JobName} to complete.",
+                        timeout.TotalSeconds,
+                        jobName
+                    );
+                    if (!done.WaitOne(timeout))
                     {
-                        await Task.Delay(
-                            TimeSpan.FromSeconds(2) // Poll period
-                        );
+                        using (jobPodWatch)
+                        using (jobLogWatch)
+                        {
+                            Log.Error("Timed out after waiting {TimeoutSeconds} seconds for deployment job {JobName} to complete.",
+                                timeout.TotalSeconds,
+                                jobName
+                            );
 
-                        Log.Verbose("Polling status for deployment job {JobName} in namespace {KubeNamespace}...",
+                            return ExitCodes.JobTimeout;
+                        }
+                    }
+
+                    jobPodWatch?.Dispose();
+                    jobLogWatch?.Dispose();
+
+                    deploymentJob = await client.JobsV1().Get(jobName);
+                    if (deploymentJob == null)
+                    {
+                        Log.Error("Cannot find deployment job {JobName} in namespace {KubeNamespace}.",
                             deploymentJob.Metadata.Name,
                             deploymentJob.Metadata.Namespace
                         );
 
-                        deploymentJob = await client.JobsV1().Get(jobName);
-                        if (deploymentJob == null)
-                        {
-                            Log.Error("Cannot find deployment job {JobName} in namespace {KubeNamespace}.",
-                                deploymentJob.Metadata.Name,
-                                deploymentJob.Metadata.Namespace
-                            );
-
-                            return ExitCodes.UnexpectedError;
-                        }
-                        
-                        if (deploymentJob.Status.Active > 0)
-                        {
-                            Log.Verbose("Deployment job {JobName} is still active.",
-                                deploymentJob.Metadata.Name
-                            );
-
-                            continue;
-                        }
-                        
-                        if (deploymentJob.Status.Succeeded > 0)
-                        {
-                            Log.Information("Deployment job {JobName} completed successfully.",
-                                deploymentJob.Metadata.Name
-                            );
-
-                            break;
-                        }
-                        
-                        if (deploymentJob.Status.Failed > 0)
-                        {
-                            Log.Error("Deployment job {JobName} failed.",
-                                deploymentJob.Metadata.Name
-                            );
-                            foreach (JobConditionV1 jobCondition in deploymentJob.Status.Conditions)
-                            {
-                                Log.Error("Deployment job {JobName} failed ({Reason}): {ErrorMessage}.",
-                                    deploymentJob.Metadata.Name,
-                                    jobCondition.Reason,
-                                    jobCondition.Message
-                                );
-                            }
-
-                            return ExitCodes.JobFailed;
-                        }
+                        return ExitCodes.UnexpectedError;
                     }
 
-                    if (deploymentJob != null)
+                    if (deploymentJob.Status.Failed > 0)
                     {
-                        List<PodV1> matchingPods = await client.PodsV1().List(
-                            labelSelector: $"job-name={jobName}",
-                            kubeNamespace: options.KubeNamespace
+                        Log.Error("Deployment job {JobName} failed.",
+                            deploymentJob.Metadata.Name
                         );
-                        if (matchingPods.Count > 0)
+                        foreach (JobConditionV1 jobCondition in deploymentJob.Status.Conditions)
                         {
-                            string log = await client.PodsV1().Logs(
-                                name: matchingPods[matchingPods.Count - 1].Metadata.Name
+                            Log.Error("Deployment job {JobName} failed ({Reason}): {ErrorMessage}.",
+                                deploymentJob.Metadata.Name,
+                                jobCondition.Reason,
+                                jobCondition.Message
                             );
-                            Log.Information("Got pod log:");
-                            Log.Information("{PodLog}", log);
                         }
-                        else
-                            Log.Warning("Failed to find any corresponding pod for job {JobName}.", jobName);
+
+                        return ExitCodes.JobFailed;
+                    }
+
+                    if (deploymentJob.Status.Succeeded > 0)
+                    {
+                        Log.Information("Deployment job {JobName} completed successfully.",
+                            deploymentJob.Metadata.Name
+                        );
                     }
                 }
 
@@ -243,7 +291,9 @@ namespace GliderGun.Tools.DeployRemoteNode
 
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Information()
-                .WriteTo.LiterateConsole();
+                .WriteTo.LiterateConsole(
+                    outputTemplate: "[{Level:u3}] {Message:l}{NewLine}{Exception}"
+                );
 
             if (options.Verbose)
                 loggerConfiguration.MinimumLevel.Verbose();
@@ -304,6 +354,11 @@ namespace GliderGun.Tools.DeployRemoteNode
             ///     The deployment job failed.
             /// </summary>
             public const int JobFailed = 2;
+
+            /// <summary>
+            ///     The deployment job failed to complete within the timeout period.
+            /// </summary>
+            public const int JobTimeout = 3;
 
             /// <summary>
             ///     An unexpected error occurred during program execution.
