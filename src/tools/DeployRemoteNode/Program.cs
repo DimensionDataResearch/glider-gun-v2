@@ -12,11 +12,12 @@ using System.Threading.Tasks;
 namespace GliderGun.Tools.DeployRemoteNode
 {
     using KubeTemplates;
+	using Microsoft.Extensions.Logging;
 
-    /// <summary>
-    ///     Tool for deploying a new Kubernetes cluster (with 1, 3, or 5 hosts) running the Glider Gun remote agent.
-    /// </summary>
-    static class Program
+	/// <summary>
+	///     Tool for deploying a new Kubernetes cluster (with 1, 3, or 5 hosts) running the Glider Gun remote agent.
+	/// </summary>
+	static class Program
     {
         /// <summary>
         ///     The main program entry-point.
@@ -318,7 +319,12 @@ namespace GliderGun.Tools.DeployRemoteNode
             services.AddLogging(loggers =>
             {
                 loggers.AddSerilog(Log.Logger);
-            });
+
+				// Propagate log-level configuration to MEL-style loggers (such as those used by KubeClient / HTTPlease).
+				loggers.SetMinimumLevel(
+					options.Verbose ? LogLevel.Debug : LogLevel.Information
+				);
+			});
 
             services.AddKubeClientOptionsFromKubeConfig(
                 kubeConfigFileName: options.KubeConfigFile,
