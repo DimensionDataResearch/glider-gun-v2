@@ -35,6 +35,7 @@ destroy() {
     pushd /deploy > /dev/null
 
     terraform destroy -force -state=$TF_STATE_FILE -lock=false
+    rm -f /state/{cluster,kube_config_cluster}.yml
 
     popd > /dev/null # /deploy
 }
