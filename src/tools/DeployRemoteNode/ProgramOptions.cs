@@ -71,9 +71,9 @@ namespace GliderGun.Tools.DeployRemoteNode
         public string KubeNamespace { get; set; }
 
         /// <summary>
-        ///     The job timeout, in minutes.
+        ///     The job timeout, in seconds.
         /// </summary>
-        [Option('t', "timeout", Default = 10 * 60, HelpText = "The job timeout, in minutes.")]
+        [Option('t', "timeout", Default = 10 * 60, HelpText = "The job timeout, in seconds.")]
         public int Timeout { get; set; }
 
         /// <summary>
