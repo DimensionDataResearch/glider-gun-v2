@@ -177,7 +177,8 @@ namespace GliderGun.Tools.DeployRemoteNode
                                 HostPath = new HostPathVolumeSourceV1
                                 {
                                     Path = ToUnixPath(
-                                        Path.Combine(options.StateDirectory, "state",
+                                        Path.Combine(
+                                            options.StateDirectory,
                                             specs.Names.SafeId(options.JobName)
                                         )
                                     ),
