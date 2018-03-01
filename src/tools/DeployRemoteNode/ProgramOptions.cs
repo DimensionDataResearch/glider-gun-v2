@@ -8,6 +8,12 @@ namespace GliderGun.Tools.DeployRemoteNode
     class ProgramOptions
     {
         /// <summary>
+        ///     Destroy the remote node (instead of deploying it).
+        /// </summary>
+        [Option("destroy", HelpText = "Destroy the remote node (instead of deploying it).")]
+        public bool Destroy { get; set; }
+
+        /// <summary>
         ///     The path of the state directory on the Kubernetes host (for job state and output).
         /// </summary>
         /// <remarks>
@@ -112,5 +118,11 @@ namespace GliderGun.Tools.DeployRemoteNode
 
             return options;
         }
+    }
+
+    enum ProgramCommand
+    {
+        Deploy,
+        Destroy
     }
 }

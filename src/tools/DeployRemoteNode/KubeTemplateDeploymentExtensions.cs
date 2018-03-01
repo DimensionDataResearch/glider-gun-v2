@@ -130,7 +130,11 @@ namespace GliderGun.Tools.DeployRemoteNode
                             {
                                 Name = "deployment",
                                 Image = $"{options.ImageName}:{options.ImageTag}",
-                                ImagePullPolicy = "IfNotPresent",
+                                ImagePullPolicy = "Always",
+                                Args = new List<string>
+                                {
+                                    options.Destroy ? "destroy" : "deploy"
+                                },
                                 Env = new List<EnvVarV1>
                                 {
                                     new EnvVarV1
