@@ -3,7 +3,7 @@
 set -euo pipefail
 
 SSH_KEY_FILE=/secrets/id_rsa
-SSH_SECURE_KEY_FILE=/secrets/ssh_private_key
+SSH_SECURE_KEY_FILE=/secure/ssh_private_key
 TF_STATE_FILE=/state/terraform.tfstate
 RKE_MANIFEST_FILE=/state/cluster.yml
 
@@ -16,8 +16,8 @@ deploy() {
 
     pushd /deploy > gtfo
 
-    terraform apply -auto-approve -state=$TF_STATE_FILE
-    terraform refresh -state=$TF_STATE_FILE
+    terraform apply -auto-approve -state=$TF_STATE_FILE -lock=false
+    terraform refresh -state=$TF_STATE_FILE -lock=false
     generate-rke-config.py --terraform-state-file $TF_STATE_FILE --ssh-key-file=$SSH_SECURE_KEY_FILE --cluster-manifest-file=$RKE_MANIFEST_FILE
 
     popd > gtfo # /deploy
@@ -36,12 +36,14 @@ destroy() {
 
     pushd /deploy > gtfo
 
-    terraform destroy -force -state=$TF_STATE_FILE
+    terraform destroy -force -state=$TF_STATE_FILE -lock=false
 
     popd > gtfo # /deploy
 }
 
 # Irritatingly, we can't change permissions on a bind-mount
+echo "Copying SSH key '$SSH_KEY_FILE' to '$SSH_SECURE_KEY_FILE'..."
+mkdir -p /secure
 cp $SSH_KEY_FILE $SSH_SECURE_KEY_FILE
 chmod 0600 $SSH_SECURE_KEY_FILE
 
