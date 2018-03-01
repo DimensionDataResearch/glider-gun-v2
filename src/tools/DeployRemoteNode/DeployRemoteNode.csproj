@@ -13,11 +13,11 @@
 
   <ItemGroup>
       <PackageReference Include="CommandLineParser" Version="2.2.1" />
-      <PackageReference Include="HTTPlease" Version="1.6.0-unstable0004" />
-      <PackageReference Include="HTTPlease.Diagnostics" Version="1.6.0-unstable0004" />
-      <PackageReference Include="KubeClient" Version="0.6.7-unstable0001" />
-      <PackageReference Include="KubeClient.Extensions.DependencyInjection" Version="0.6.7-unstable0001" />
-      <PackageReference Include="KubeClient.Extensions.KubeConfig" Version="0.6.7-unstable0001" />
+      <PackageReference Include="HTTPlease" Version="1.8.0" />
+      <PackageReference Include="HTTPlease.Diagnostics" Version="1.8.0" />
+      <PackageReference Include="KubeClient" Version="0.6.8" />
+      <PackageReference Include="KubeClient.Extensions.DependencyInjection" Version="0.6.8" />
+      <PackageReference Include="KubeClient.Extensions.KubeConfig" Version="0.6.8" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />

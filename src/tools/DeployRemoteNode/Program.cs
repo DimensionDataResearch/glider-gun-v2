@@ -320,10 +320,15 @@ namespace GliderGun.Tools.DeployRemoteNode
             {
                 loggers.AddSerilog(Log.Logger);
 
-				// Propagate log-level configuration to MEL-style loggers (such as those used by KubeClient / HTTPlease).
+				// Propagate log-level configuration to MEL-style loggers.
 				loggers.SetMinimumLevel(
 					options.Verbose ? LogLevel.Debug : LogLevel.Information
 				);
+
+                // Specific switch for HTTP logging (Kubernetes API).
+                loggers.AddFilter(typeof(KubeApiClient).FullName,
+                    options.EnableHttpLogging ? LogLevel.Debug : LogLevel.None
+                );
 			});
 
             services.AddKubeClientOptionsFromKubeConfig(
@@ -331,6 +336,13 @@ namespace GliderGun.Tools.DeployRemoteNode
                 kubeContextName: options.KubeContextName,
                 defaultNamespace: options.KubeNamespace
             );
+            if (options.EnableHttpLogging)
+            {
+                services.PostConfigure<KubeClientOptions>(kubeClientOptions =>
+                {
+                    kubeClientOptions.LogPayloads = true;
+                });
+            }
             services.AddKubeClient();
 
             services.AddKubeTemplates(new KubeTemplateOptions

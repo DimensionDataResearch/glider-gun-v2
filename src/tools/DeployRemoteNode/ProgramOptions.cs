@@ -89,6 +89,12 @@ namespace GliderGun.Tools.DeployRemoteNode
         public bool Verbose { get; set; }
 
         /// <summary>
+        ///     Enable logging of HTTP requests and responses?
+        /// </summary>
+        [Option("enable-http-logging", Default = false, HelpText = "Enable logging of HTTP requests and responses.")]
+        public bool EnableHttpLogging { get; set; }
+
+        /// <summary>
         ///     Parse program options from command-line arguments.
         /// </summary>
         /// <param name="commandLineArguments">
