@@ -8,7 +8,7 @@ namespace GliderGun.Actors.Pods
     /// <summary>
     ///     Actor that publishes log entries from a container in a Kubernetes Pod.
     /// </summary>
-    public partial class LogSpooler
+    public partial class LogStreamer
         : ReceiveActorEx
     {
         /// <summary>
@@ -30,7 +30,7 @@ namespace GliderGun.Actors.Pods
         string _podNamespace;
 
         /// <summary>
-        ///     The actor to which log entries will be sent by the <see cref="LogSpooler"/>.
+        ///     The actor to which log entries will be sent by the <see cref="LogStreamer"/>.
         /// </summary>
         IActorRef _subscriber;
 
@@ -45,12 +45,12 @@ namespace GliderGun.Actors.Pods
         IDisposable _logStreamSubscription;
 
         /// <summary>
-        ///     Create a new <see cref="LogSpooler"/> actor.
+        ///     Create a new <see cref="LogStreamer"/> actor.
         /// </summary>
         /// <param name="kubeClient">
         ///     The Kubernetes API client.
         /// </param>
-        public LogSpooler(KubeApiClient kubeClient)
+        public LogStreamer(KubeApiClient kubeClient)
         {
             if (kubeClient == null)
                 throw new ArgumentNullException(nameof(kubeClient));
@@ -66,7 +66,7 @@ namespace GliderGun.Actors.Pods
         KubeApiClient KubeClient { get; }
 
         /// <summary>
-        ///     Called when the <see cref="LogSpooler"/> is initialising.
+        ///     Called when the <see cref="LogStreamer"/> is initialising.
         /// </summary>
         void Initializing()
         {
@@ -87,14 +87,14 @@ namespace GliderGun.Actors.Pods
             ReceiveAny(message =>
             {
                 Sender.Tell(new Status.Failure(
-                    new InvalidOperationException("LogSpooler has not been initialised.")
+                    new InvalidOperationException($"{nameof(LogStreamer)} has not been initialised.")
                 ));
                 Unhandled(message);
             });
         }
 
         /// <summary>
-        ///     Called when the <see cref="LogSpooler"/> is streaming log entries.
+        ///     Called when the <see cref="LogStreamer"/> is streaming log entries.
         /// </summary>
         void Streaming()
         {
@@ -108,7 +108,7 @@ namespace GliderGun.Actors.Pods
             Receive<Initialize>(initialize =>
             {
                 Sender.Tell(new Status.Failure(
-                    new InvalidOperationException("LogSpooler has already been initialised.")
+                    new InvalidOperationException($"{nameof(LogStreamer)} has already been initialised.")
                 ));
                 Unhandled(initialize);
             });

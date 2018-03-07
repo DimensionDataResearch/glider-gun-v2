@@ -8,10 +8,10 @@ namespace GliderGun.Actors.Pods
     /// <summary>
     ///     Actor that publishes log entries from a container in a Kubernetes Pod.
     /// </summary>
-    public partial class LogSpooler
+    public partial class LogStreamer
     {
         /// <summary>
-        ///     Request initialisation of a <see cref="LogSpooler"/> actor.
+        ///     Request initialisation of a <see cref="LogStreamer"/> actor.
         /// </summary>
         public class Initialize
         {
@@ -34,7 +34,7 @@ namespace GliderGun.Actors.Pods
             public string PodNamespace { get; }
 
             /// <summary>
-            ///     The actor to which log entries will be sent by the <see cref="LogSpooler"/>.
+            ///     The actor to which log entries will be sent by the <see cref="LogStreamer"/>.
             /// </summary>
             public IActorRef Subscriber { get; }
 
@@ -48,7 +48,7 @@ namespace GliderGun.Actors.Pods
             ///     The Kubernetes namespace in which the target Pod is located.
             /// </param>
             /// <param name="subscriber">
-            ///     The actor to which log entries will be sent by the <see cref="LogSpooler"/>.
+            ///     The actor to which log entries will be sent by the <see cref="LogStreamer"/>.
             /// </param>
             public Initialize(string podName, string podNamespace, IActorRef subscriber)
                 : this(podName, null, podNamespace, subscriber)
@@ -70,7 +70,7 @@ namespace GliderGun.Actors.Pods
             ///     The Kubernetes namespace in which the target Pod is located.
             /// </param>
             /// <param name="subscriber">
-            ///     The actor to which log entries will be sent by the <see cref="LogSpooler"/>.
+            ///     The actor to which log entries will be sent by the <see cref="LogStreamer"/>.
             /// </param>
             public Initialize(string podName, string containerName, string podNamespace, IActorRef subscriber)
             {
