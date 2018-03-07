@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 15.0.26124.0
@@ -17,6 +17,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DeployRemoteNode", "src\tools\DeployRemoteNode\DeployRemoteNode.csproj", "{A211C039-C01D-4477-B51B-88ED5754D589}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GliderGun.KubeTemplates", "src\GliderGun.KubeTemplates\GliderGun.KubeTemplates.csproj", "{EDF0D813-D68C-4B51-9606-24382841BB52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.Actors.Tests", "test\GliderGun.Actors.Tests\GliderGun.Actors.Tests.csproj", "{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +90,18 @@ Global
 		{EDF0D813-D68C-4B51-9606-24382841BB52}.Release|x64.Build.0 = Release|Any CPU
 		{EDF0D813-D68C-4B51-9606-24382841BB52}.Release|x86.ActiveCfg = Release|Any CPU
 		{EDF0D813-D68C-4B51-9606-24382841BB52}.Release|x86.Build.0 = Release|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Debug|x64.Build.0 = Debug|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Debug|x86.Build.0 = Debug|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Release|x64.ActiveCfg = Release|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Release|x64.Build.0 = Release|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Release|x86.ActiveCfg = Release|Any CPU
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +113,7 @@ Global
 		{580BA5D6-364A-45EE-A52C-DBC21EBF3510} = {30436182-656E-40F6-BA5C-906BA5E6E53E}
 		{A211C039-C01D-4477-B51B-88ED5754D589} = {580BA5D6-364A-45EE-A52C-DBC21EBF3510}
 		{EDF0D813-D68C-4B51-9606-24382841BB52} = {30436182-656E-40F6-BA5C-906BA5E6E53E}
+		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9} = {7AD71FB0-6424-4255-81B6-B8638541B515}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3EC304B1-07DF-4424-98E7-19BB3DB69CD9}
