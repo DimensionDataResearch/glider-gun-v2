@@ -1,4 +1,3 @@
-using System;
 using Xunit.Abstractions;
 
 using TestKit = Akka.TestKit.Xunit2.TestKit;
@@ -11,7 +10,7 @@ namespace GliderGun.Actors.Tests
     public abstract class ActorTestBase
         : TestKit
     {
-        /// <summary>
+		/// <summary>
         ///     Create a new <see cref="ActorTestBase"/>.
         /// </summary>
         /// <param name="testOutput">
@@ -20,6 +19,6 @@ namespace GliderGun.Actors.Tests
         protected ActorTestBase(ITestOutputHelper testOutput)
             : base(output: testOutput)
         {
-        }
+		}
     }
 }
