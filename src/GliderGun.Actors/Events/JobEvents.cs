@@ -112,13 +112,13 @@ namespace GliderGun.Actors.Events
             : ResourceEventBus<JobV1, ResourceEventFilter>
         {
             /// <summary>
-            ///     Get the metadata for the specified resource.
+            ///     Get the metadata for the specified Job.
             /// </summary>
             /// <param name="job">
             ///     A <see cref="JobV1"/> representing the target Job.
             /// </param>
             /// <returns>
-            ///     The resource metadata.
+            ///     The Job metadata.
             /// </returns>
             protected override ObjectMetaV1 GetMetadata(JobV1 job) => job.Metadata;
 
