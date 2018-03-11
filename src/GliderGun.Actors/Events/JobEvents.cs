@@ -114,19 +114,13 @@ namespace GliderGun.Actors.Events
             /// <summary>
             ///     Get the metadata for the specified resource.
             /// </summary>
-            /// <param name="replicationController">
+            /// <param name="job">
             ///     A <see cref="JobV1"/> representing the target Job.
             /// </param>
             /// <returns>
             ///     The resource metadata.
             /// </returns>
-            protected override ObjectMetaV1 GetMetadata(JobV1 replicationController)
-            {
-                if (replicationController == null)
-                    throw new ArgumentNullException(nameof(replicationController));
-                
-                return replicationController.Metadata;
-            }
+            protected override ObjectMetaV1 GetMetadata(JobV1 job) => job.Metadata;
 
             /// <summary>
             ///     Create a filter that exactly matches the specified Job metadata.
