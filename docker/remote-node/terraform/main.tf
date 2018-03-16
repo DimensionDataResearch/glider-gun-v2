@@ -43,13 +43,13 @@ resource "digitalocean_droplet" "kube_host" {
   provisioner "remote-exec" {
     
     inline = [
-      "apt-get update",
-      "apt-get install -y --no-install-recommends apt-transport-https curl software-properties-common",
-      "apt-get install -y --no-install-recommends linux-image-extra-$(uname -r) linux-image-extra-virtual",
+      "apt-get update -qq",
+      "apt-get install -q -y --no-install-recommends apt-transport-https curl software-properties-common",
+      "apt-get install -q -y --no-install-recommends linux-image-extra-$(uname -r) linux-image-extra-virtual",
       "curl -fsSL 'https://sks-keyservers.net/pks/lookup?op=get&search=0xee6d536cf7dc86e2d7d56f59a178ac6c6238f52e' | sudo apt-key add -",
       "add-apt-repository -y \"deb https://packages.docker.com/1.12/apt/repo/ ubuntu-$(lsb_release -cs) main\"",
-      "apt-get update",
-      "apt-get -y install docker-engine"
+      "apt-get update -qq",
+      "apt-get -q -y install docker-engine"
     ]
   }
 
