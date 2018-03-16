@@ -107,7 +107,7 @@ def main(terraform_state_file=None, ssh_key_file=None, cluster_manifest_file=Non
     with open(cluster_manifest_file, 'w') as manifest_file:
         manifest_file.write('# RKE Manifest\n')
         yaml.dump(rke_manifest, manifest_file,
-            default_flow_style=False
+            default_flow_style=False  # Ugh, flow style is ugly
         )
 
     print('Done.')
