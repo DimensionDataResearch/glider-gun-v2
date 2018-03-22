@@ -87,9 +87,7 @@ Could be NFS (either an existing NFS volume, or a Kubernetes `PersistentVolume` 
 A local folder is created on the target node and populated with data as required (perhaps by an init container in the job pod).
 When the job is complete, the folder contents are archived and persisted (perhaps in a database). If the deployment is run again, the previous folder contents are restored from the archive.
 
-If we use an init container, then we can pass it an environment variable with a key used to retrieve the state and log archive streams. This would mean that one of the setup tasks for a job (run for the first time) would be to generate an archive with the required files and pre-populate the database with it.
-
-How do we know when to archive the state and log volumes? When the job is complete? There's a potential race condition here - we'd need a way to lock the job state until archiving is complete. If we treat the Glider Gun deployment as the high-level entity (rather than the underlying Kubernetes job), then we can manage locking at that level (i.e. the deployment has its own lifecycle which can be used to determine whether a given action is permitted at any given time).
+If we use a job with 3 containers (setup, deploy, capture state / clean up), then we can pass the first container an environment variable with a key used to retrieve the state and log archive streams. This would mean that one of the setup tasks for a job (run for the first time) would be to generate an archive with the required files and pre-populate the database with it. When the third container runs, it can archive the state / logs and update the database with that archive.
 
 ## Templates
 
