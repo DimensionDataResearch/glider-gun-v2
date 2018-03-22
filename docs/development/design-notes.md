@@ -10,6 +10,52 @@ See [daas-demo](https://github.com/DimensionDataResearch/daas-demo) for [some](h
 
 Each deployment is represented in Kubernetes as a `Job`. The job's pod runs the template container, and the Glider Gun agent supplies it with initial state data / captures resulting state data and logs.
 
+You can define a job that sequentially runs several containers (one-at-a-time). For example:
+
+```yaml
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: sequential-job-test
+spec:
+  parallelism: 1 # i.e. sequential
+  completions: 2 # all containers must complete for the job to be considered complete
+  template:
+    metadata:
+      name: sequential-job-test
+    spec:
+      restartPolicy: Never
+
+      containers:
+      - name: create-greetz
+        image: ubuntu:xenial
+        command:
+          - /bin/bash
+          - -c
+          - "mkdir -p /shared/sj && echo Hello > /shared/sj/greetz.txt"
+        volumeMounts:
+          - name: shared
+            mountPath: /shared
+
+      - name: show-greetz
+        image: ubuntu:xenial
+        command:
+          - /bin/bash
+          - -c
+          - "cat /shared/sj/greetz.txt"
+        volumeMounts:
+          - name: shared
+            mountPath: /shared
+
+      volumes:
+        - name: shared
+          hostPath:
+            path: /tmp
+            type: Directory
+```
+
+In this way, we can have a container that performs initial setup, a container that runs the deployment, and a container that captures state data / performs cleanup.
+
 ## Storage
 
 Each pod representing a Glider Gun deployment needs 2 persistent volumes:
