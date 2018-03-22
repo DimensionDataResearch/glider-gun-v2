@@ -10,7 +10,7 @@ See [daas-demo](https://github.com/DimensionDataResearch/daas-demo) for [some](h
 
 Each deployment is represented in Kubernetes as a `Job`. The job's pod runs the template container, and the Glider Gun agent supplies it with initial state data / captures resulting state data and logs.
 
-You can define a job that sequentially runs several containers (one-at-a-time). For example:
+You can define a job that sequentially runs several containers (one-at-a-time, all run in sequence even if some fail). For example:
 
 ```yaml
 kind: Job
@@ -18,8 +18,15 @@ apiVersion: batch/v1
 metadata:
   name: sequential-job-test
 spec:
-  parallelism: 1 # i.e. sequential
+  # Run pod's containers sequentially
+  parallelism: 1
+
+  # Only run a single instance of the job.
   completions: 1
+
+  # Do not restart the job's pod if it fails.
+  backoffLimit: 0
+
   template:
     metadata:
       name: sequential-job-test
