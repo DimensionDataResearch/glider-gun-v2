@@ -28,7 +28,7 @@ The Glider Gun cluster has multiple nodes, and the `/state` and `/log` volumes m
 * Local storage  
   A local folder is managed by the Glider Gun agent on each node, and this folder is then mounted into the pod as a local volume.
 
-Given requirements for archiving and restoring state, the local storage option may be preferable.
+Given requirements for archiving and restoring state, the local storage option may be preferable (this can be done with shared storage but it's a little riskier in terms of race conditions).
 
 ### Shared storage
 
