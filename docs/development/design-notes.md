@@ -1,5 +1,50 @@
 # Glider Gun v2 - Design Notes
 
+## Deployments
+
+A deployment is an inherently stateful entity; we'll probably represent each deployment with its own actor that manages the deployment life-cycle. The deployment's status will be recorded in the database and treated as the source-of-truth (e.g. if the database says it's in-progress then you _can't_ run again it until it's marked as completed or failed, but you _can_ cancel it).
+
+See [daas-demo](https://github.com/DimensionDataResearch/daas-demo) for [some](https://github.com/DimensionDataResearch/daas-demo/blob/master/src/DaaSDemo.Provisioning/Actors/TenantServerManager.cs) [examples](https://github.com/DimensionDataResearch/daas-demo/blob/master/src/DaaSDemo.Provisioning/Actors/TenantDatabaseManager.cs) of representing stateful activities using actors and database state.
+
+## Jobs
+
+Each deployment is represented in Kubernetes as a `Job`. The job's pod runs the template container, and the Glider Gun agent supplies it with initial state data / captures resulting state data and logs.
+
+## Storage
+
+Each pod representing a Glider Gun deployment needs 2 persistent volumes:
+
+* `/state`  
+  Holds input data (e.g. `template-parameters.json`) and state data produced by the deployment (e.g. `terraform.tfstate`).
+* `/logs`  
+  Holds log files (if any) produced by the deployment.
+
+## Storage strategies
+
+The Glider Gun cluster has multiple nodes, and the `/state` and `/log` volumes must be available on the node where the job is running. There are 2 options to achieve this:
+
+* Shared storage  
+  A sub-folder of the shared storage volume is mounted into the pod's conta.
+* Local storage  
+  A local folder is managed by the Glider Gun agent on each node, and this folder is then mounted into the pod as a local volume.
+
+Given requirements for archiving and restoring state, the local storage option may be preferable.
+
+### Shared storage
+
+Could be NFS (either an existing NFS volume, or a Kubernetes `PersistentVolume` in `ReadWriteMany` mode using the NFS provisioner) or something like [Rook](https://rook.io/) dynamically provisioning the volume.
+
+**Note:** currently, Rook doesn't seem to correctly handle `ReadWriteMany` (it barfs as soon as a volume is mounted into a second pod, even if it's marked as `ReadWriteMany`).
+
+### Local storage
+
+A local folder is created on the target node and populated with data as required (perhaps by an init container in the job pod).
+When the job is complete, the folder contents are archived and persisted (perhaps in a database). If the deployment is run again, the previous folder contents are restored from the archive.
+
+If we use an init container, then we can pass it an environment variable with a key used to retrieve the state and log archive streams. This would mean that one of the setup tasks for a job (run for the first time) would be to generate an archive with the required files and pre-populate the database with it.
+
+How do we know when to archive the state and log volumes? When the job is complete? There's a potential race condition here - we'd need a way to lock the job state until archiving is complete. If we treat the Glider Gun deployment as the high-level entity (rather than the underlying Kubernetes job), then we can manage locking at that level (i.e. the deployment has its own lifecycle which can be used to determine whether a given action is permitted at any given time).
+
 ## Templates
 
 In Glider Gun, a template consists of a Docker image, together with metadata describing the template's known inputs and outputs.
