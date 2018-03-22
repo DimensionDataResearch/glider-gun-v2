@@ -19,7 +19,7 @@ metadata:
   name: sequential-job-test
 spec:
   parallelism: 1 # i.e. sequential
-  completions: 2 # all containers must complete for the job to be considered complete
+  completions: 1
   template:
     metadata:
       name: sequential-job-test
@@ -54,7 +54,7 @@ spec:
             type: Directory
 ```
 
-In this way, we can have a container that performs initial setup, a container that runs the deployment, and a container that captures state data / performs cleanup.
+In this way, we can have a container that performs initial setup, a container that runs the deployment, and a container that captures state data / performs cleanup. The final container can check the job status (and take appropriate actions) because it knows which pod it's running in.
 
 ## Storage
 
