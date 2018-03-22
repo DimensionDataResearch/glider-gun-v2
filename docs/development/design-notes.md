@@ -61,7 +61,7 @@ In this way, we can have a container that performs initial setup, a container th
 Each pod representing a Glider Gun deployment needs 2 persistent volumes:
 
 * `/state`  
-  Holds input data (e.g. `template-parameters.json`) and state data produced by the deployment (e.g. `terraform.tfstate`).
+  Holds input data (e.g. `parameters.json`) and state data produced by the deployment (e.g. `terraform.tfstate`).
 * `/logs`  
   Holds log files (if any) produced by the deployment.
 
@@ -95,7 +95,7 @@ In Glider Gun, a template consists of a Docker image, together with metadata des
 
 ### Deploying a template
 
-Generally, a template's base layers know how to import parameters.json into a format that the upper layers can interpret. For example, they may generate tfvars.json, and / or populate environment variables (perhaps with a prefix such as TF_VAR_). They may also know how to contact Vault and export secrets as environment variables (how does this work for remote nodes, though?).
+Generally, a template's base layers know how to import `parameters.json` into a format that the upper layers can interpret. For example, they may generate `tfvars.json`, and / or populate environment variables (perhaps with a prefix such as `TF_VAR_`). They may also know how to contact Vault and export secrets as environment variables (how does this work for remote nodes, though?).
 
 Some system-level configuration options (e.g. Vault connection details) are always supplied as environment variables.
 
@@ -104,8 +104,9 @@ Some system-level configuration options (e.g. Vault connection details) are alwa
 A template type is a base image from which templates can be created.
 
 There are 2 main kinds of template type:
-	• Standard
-	• Ad-hoc
+
+* Standard
+* Ad-hoc
 
 Standard templates are built into images created from base images (standard template types), and their only inputs are template parameters. 
 
