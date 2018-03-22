@@ -21,7 +21,7 @@ Each pod representing a Glider Gun deployment needs 2 persistent volumes:
 
 ## Storage strategies
 
-The Glider Gun cluster has multiple nodes, and the `/state` and `/log` volumes must be available on the node where the job is running. There are 2 options to achieve this:
+The Glider Gun cluster has multiple nodes, and the `/state` and `/log` volumes must be available on the node where the job is running. The contents of these volumes must be persisted between runs of the deployment (and therefore persisted somehow). There are 2 options to achieve this:
 
 * Shared storage  
   A sub-folder of the shared storage volume is mounted into the pod's conta.
