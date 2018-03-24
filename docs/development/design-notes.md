@@ -231,7 +231,7 @@ Templates consist of source files and metadata. They can be imported from a zip 
 
 ## Remote nodes
 
-Something akin to a bastion host - if you want to run Ansible within someone's network you need to have an appliance there that can run jobs. Imagine something like Glider Gun v1, but polling for jobs / listening to a queue. Just Docker not Kubernetes. These nodes can, themselves, be deployed from templates. 
+Something akin to a bastion host - if you want to run Ansible within someone's network you need to have an appliance there that can run jobs. Imagine something like Glider Gun v1, but polling for jobs / listening to a queue. To keep things simple, this is a single-node Kubernetes cluster (RKE?) running the Glider Gun Remote agent. These nodes can, themselves, be deployed from templates. 
 
 I considered simply adding remote nodes to the existing Kubernetes cluster but I think that might be a mistake, operationally - there are probably too many open ports and protocols required between the master and the worker to make this a viable strategy.
 
@@ -243,9 +243,7 @@ We'd need to ensure that templates are not specifically Kubernetes- or Docker-aw
 
 Additionally, it means we need 2 different mechanisms (i.e. execution adapters) for invoking a job and managing / capturing its state: in the main (Kubernetes) cluster, we'd use a Job object, and on remote nodes we'd have to create and manage the container directly.
 
-#### Docker-in-Docker (DinD)
-
-Another possibility could be using Docker-in-Docker (DinD) from both Kubernetes (pod has Glider Gun Agent container and DinD container, with agent talking to DinD's Docker API) and directly from Docker (Glider Gun Agent container and DinD container are hosted directly in Docker, and Glider Gun Agent talks to DinD's Docker API) to execute containers. This way, a Glider Gun agent will always talk to local Docker wherever it is running (regardless of whether that's a local or remote node).
+For this reason, remote nodes are also Kubernetes clusters (just single-node ones).
 
 #### Single-node Rancher Kubernetes Engine (RKE)
 
@@ -284,9 +282,9 @@ services:
 
 Remote nodes are linux appliances (VMs, most likely) that are configured using an Ansible playbook (to install / configure the required components).
 
-They run Linux with Docker; all required services (e.g. Glider Gun Remote, Vault) are run as Docker containers.
+They run Linux with Docker and Kubernetes; all required services (e.g. Glider Gun Remote, Vault) are run inside Kubernetes.
 
-We could use a deployment template to deploy remote nodes :-)
+We could use a deployment template to deploy remote nodes (yo, dawg).
 
 ### Cluster-to-remote-node communications
 
