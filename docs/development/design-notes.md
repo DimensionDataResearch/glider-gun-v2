@@ -56,9 +56,13 @@ spec:
 
       volumes:
         - name: shared
-          hostPath:
-            path: /tmp
-            type: Directory
+          flexVolume:
+            driver: rook.io/rook
+            fsType: ceph
+            options:
+              fsName: shared
+              clusterName: rook
+              path: /glidergun/workspaces/jobs/job-1
 ```
 
 In this way, we can have a container that performs initial setup, a container that runs the deployment, and a container that captures state data / performs cleanup. The final container can check the job status (and take appropriate actions) because it knows which pod it's running in.
@@ -77,17 +81,17 @@ Each pod representing a Glider Gun deployment needs 2 persistent volumes:
 The Glider Gun cluster has multiple nodes, and the `/state` and `/log` volumes must be available on the node where the job is running. The contents of these volumes must be persisted between runs of the deployment. There are 2 options to achieve this:
 
 * Shared storage  
-  A sub-folder of the shared storage volume is mounted into the pod's container.
+  A sub-folder of the shared storage volume is mounted into the pod's container.  
+  This volume can be mounted by the Glider Gun provisioning pod, and also mounted into each job's pods using the Rook FlexVolume driver.
+
 * Local storage  
   A local folder is managed by the Glider Gun agent on each node, and this folder is then mounted into the pod as a local volume.
 
-Given requirements for archiving and restoring state, the local storage option may be preferable (this can be done with shared storage but it's a little riskier in terms of race conditions).
+It's probably a lot simpler to use shared storage (fewer moving parts in user-space).
 
 ### Shared storage
 
-Could be NFS (either an existing NFS volume, or a Kubernetes `PersistentVolume` in `ReadWriteMany` mode using the NFS provisioner) or something like [Rook](https://rook.io/) dynamically provisioning the volume.
-
-**Note:** currently, Rook doesn't seem to correctly handle `ReadWriteMany` (it barfs as soon as a volume is mounted into a second pod, even if it's marked as `ReadWriteMany`).
+Could be NFS (either an existing NFS volume, or a Kubernetes `PersistentVolume` in `ReadWriteMany` mode using the NFS provisioner) or something like [Rook's](https://rook.io/) shared `FileSystem`.
 
 ### Local storage
 
@@ -128,6 +132,88 @@ Template authors can choose to delegate some or all parameters to the newly-crea
 ### Template builds
 
 To build a standard template, the user selects a template type (i.e. base image), and then supplies metadata, configuration files and content files (either by uploading a .zip / .tgz, or by supplying the URL for a git repository). The system generates a Dockerfile to represent the template configuration (starts from the template-type base image and adds the template's configuration files / content files as required), then uses it to build and publish a new image representing the template.
+
+We can host a CI pipeline (e.g. Jenkins) that handles template builds. Ideally, a separate Docker host can be used to run these builds but they could instead be run inside the cluster using Docker-in-Docker ([DinD](https://github.com/jpetazzo/dind)).
+
+#### Docker-in-Docker (DinD)
+
+Here's an example manifest that deploys DinD and a client container that uses it to run the Apache web server:
+
+```yaml
+---
+
+# Storage for DinD. DinD can't use the container's volume graph, so we use an external volume (in this case, a Rook PVC).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dind-data
+  labels:
+    k8s-app: dind-demo
+spec:
+  storageClassName: my-rook-storage-class
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi # DinD needs quite a lot of storage
+
+---
+
+# The DinD pod (this would actually be a deployment that runs the build pipeline).
+apiVersion: v1 
+kind: Pod 
+metadata: 
+    name: dind-demo
+    labels:
+      k8s-app: dind-demo
+spec: 
+    containers: 
+      - name: dind-daemon 
+        image: docker:1.12.6-dind 
+        resources: 
+            requests: 
+                cpu: 20m 
+                memory: 512Mi 
+        securityContext: 
+            privileged: true 
+        volumeMounts: 
+          - name: docker-graph-storage 
+            mountPath: /var/lib/docker 
+      - name: docker-cmds 
+        image: docker:1.12.6 
+        command: ['docker', 'run', '-p', '80:80', 'httpd:latest'] 
+        resources: 
+            requests: 
+                cpu: 10m 
+                memory: 256Mi 
+        env: 
+          - name: DOCKER_HOST 
+            value: tcp://localhost:2375 
+    volumes: 
+      - name: docker-graph-storage 
+        persistentVolumeClaim:
+          claimName: dind-data
+
+---
+
+# Externally-facing service
+apiVersion: v1
+kind: Service
+metadata:
+  name: dind-demo
+  labels:
+    k8s-app: dind-demo
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8080
+    nodePort: 31880
+    targetPort: 80
+    protocol: TCP
+  selector:
+    k8s-app: dind-demo
+```
 
 ### Template versioning
 
