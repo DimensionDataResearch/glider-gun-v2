@@ -100,6 +100,12 @@ When the job is complete, the folder contents are archived and persisted (perhap
 
 If we use a job with 3 containers (setup, deploy, capture state / clean up), then we can pass the first container an environment variable with a key used to retrieve the state and log archive streams. This would mean that one of the setup tasks for a job (run for the first time) would be to generate an archive with the required files and pre-populate the database with it. When the third container runs, it can archive the state / logs and update the database with that archive.
 
+## Workspaces
+
+A workspace contains all the persistent state for a deployment. The contents of the workspace directory are stored in `.zip` format in the Glider Gun database (and can be restored / updated as required).
+
+Since the workspace may contain sensitive information (e.g. `terraform.tfstate`), its data may need to be encrypted while at rest.
+
 ## Templates
 
 In Glider Gun, a template consists of a Docker image, together with metadata describing the template's known inputs and outputs.
