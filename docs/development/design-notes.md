@@ -96,7 +96,7 @@ Could be NFS (either an existing NFS volume, or a Kubernetes `PersistentVolume` 
 ### Local storage
 
 A local folder is created on the target node and populated with data as required (perhaps by an init container in the job pod).
-When the job is complete, the folder contents are archived and persisted (perhaps in a database). If the deployment is run again, the previous folder contents are restored from the archive.
+When the job is complete, the folder contents are archived and persisted (in a shared storage directory or the database). If the deployment is run again, the previous folder contents are restored from the archive.
 
 If we use a job with 3 containers (setup, deploy, capture state / clean up), then we can pass the first container an environment variable with a key used to retrieve the state and log archive streams. This would mean that one of the setup tasks for a job (run for the first time) would be to generate an archive with the required files and pre-populate the database with it. When the third container runs, it can archive the state / logs and update the database with that archive.
 
@@ -105,6 +105,17 @@ If we use a job with 3 containers (setup, deploy, capture state / clean up), the
 A workspace contains all the persistent state for a deployment. The contents of the workspace directory are stored in `.zip` format in the Glider Gun database (and can be restored / updated as required).
 
 Since the workspace may contain sensitive information (e.g. `terraform.tfstate`), its data may need to be encrypted while at rest.
+
+### Workspace storage
+
+2 options for storing workspace contents:
+
+* Record-per-workspace in the database  
+  Archived workspace contents stored in a `varbinary` column.
+* Workspace storage directory  
+  Archive files are stored in this directory (which is shared storage), and their file names are stored in the database.
+
+Either way, there's a Workspaces API that you can call to initialise / retrieve / update the contents of a given workspace in the appropriate location (i.e. the directory where a given deployment's state / logs live).
 
 ## Templates
 
