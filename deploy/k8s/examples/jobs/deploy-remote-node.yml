@@ -1,16 +1,16 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: deploy-glider-gun-remote
+  name: deploy-glidergun-remote
 spec:
   completions: 1
   template:
     metadata:
-      name: deploy-glider-gun-remote
+      name: deploy-glidergun-remote
     spec:
       containers:
-      - name: deploy-glider-gun-remote
-        image: tintoyddr.azurecr.io/glider-gun/remote/node:latest
+      - name: deploy-glidergun-remote
+        image: ddresearch.azurecr.io/glidergun/remote/node:latest
         env:
           - name: TF_VAR_dns_subdomain
             value: yo-dawg
@@ -33,10 +33,10 @@ spec:
       volumes:
         - name: state
           hostPath:
-            path: /var/run/glider-gun/state
+            path: /var/run/glidergun/state
             type: Directory
 
         - name: ssh-key
           hostPath:
-            path: /etc/glider-gun/keys/ssh
+            path: /etc/glidergun/keys/ssh
             type: File

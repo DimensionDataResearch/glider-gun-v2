@@ -17,8 +17,13 @@ spec:
         k8s-app: fluentd-es
         version: v1.22
     spec: 
+      tolerations:
+        - key: role
+          value: storage
+          effect: NoSchedule
+      
       containers: 
-        - image: 'tintoy.azurecr.io/glidergun/fluentd:1.0.0-dev' # gcr.io/google_containers/fluentd-elasticsearch:1.22
+        - image: 'ddresearch.azurecr.io/fluentd:1.0.0-dev' # Original image is gcr.io/google_containers/fluentd-elasticsearch:1.22
           imagePullPolicy: Always
           name: fluentd-es
           command: 
@@ -52,5 +57,6 @@ spec:
           hostPath: 
             path: /var/lib/docker/containers
           name: varlibdockercontainers
+      
       imagePullSecrets:
-          - name: glidergun-registry
+          - name: ddresearch-registry

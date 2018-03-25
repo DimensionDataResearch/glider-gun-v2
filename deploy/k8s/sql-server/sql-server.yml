@@ -1,0 +1,52 @@
+kind: Deployment
+apiVersion: apps/v1beta1
+metadata:
+  name: sql-server
+  labels:
+    k8s-app: sql-server
+spec:
+  replicas: 1
+  
+  selector:
+    matchLabels:
+      k8s-app: sql-server
+
+  strategy:
+    type: Recreate
+
+  template:
+    metadata:
+      labels:
+        k8s-app: sql-server
+    spec:
+      serviceAccountName: sql-server
+      terminationGracePeriodSeconds: 60
+
+      containers:
+        - name: sql-server
+          image: microsoft/mssql-server-linux:2017-GA
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name:  SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sql-server
+                  key: sa-password
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -c
+                - "/opt/mssql-tools/bin/sqlcmd -S . -U sa -P \"${SA_PASSWORD}\" -q \"print 'Success'\""
+          volumeMounts:
+            - name: sql-data
+              mountPath: /var/opt/mssql
+              subPath: sql-server
+          ports:
+            - containerPort: 1433
+
+      volumes:
+          - name: sql-data
+            persistentVolumeClaim:
+              claimName: sql-data

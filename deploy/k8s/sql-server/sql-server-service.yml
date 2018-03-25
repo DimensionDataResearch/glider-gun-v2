@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: sql-server
+  labels:
+    k8s-app: sql-server
+spec:
+  type: NodePort
+  ports:
+    - name: mssql
+      port: 1433
+      nodePort: 31433
+      targetPort: 1433
+      protocol: TCP
+  
+  selector:
+    k8s-app: sql-server
