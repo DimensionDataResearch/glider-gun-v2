@@ -1,0 +1,52 @@
+---
+- include: "{{ playbook_dir }}/playbooks/check-requirements.yml"
+
+- hosts: all
+  roles:
+    - common
+  tags:
+    - common
+
+  # TODO: Add SPECIFIC firewall exceptions for ports used by Kubernetes rather than just disabling UFW
+- hosts: all
+  tasks:
+    - name: Disable firewall (yesyesyes, can't be bothered right now)
+      ufw:
+        state: disabled
+  tags:
+    - firewall
+
+- hosts: role=storage-host
+  vars:
+    initial_nfs_volume: /dev/sdb
+    nfs_volume_size: "110g"
+    nfs_allow_network: "192.168.5.0/24" # The private IPv4 network on which the worker nodes are located
+    nfs_exports:
+      - "/data/nfs {{ nfs_allow_network }}(rw,fsid=0,insecure,no_subtree_check,no_root_squash,async)"
+  roles:
+    - storage-volume
+    - nfs
+  tags:
+    - storage
+
+- hosts: all
+  roles:
+    - docker
+  tags:
+    - docker
+
+- hosts: role=rancher-host
+  roles:
+    - rancher-server
+  tags:
+    - rancher-server
+
+# - hosts:
+#     - role=kube-host
+#     - role=kube-storage
+#   vars:
+#     agent_target_url: '' # Enter the target URL here (e.g. 'https://foo.bar.com/v1/scripts/XXXXX:YYY:ZZZ', as shown in the Rancher UI)
+#   roles:
+#     - rancher-agent
+#   tags:
+#     - rancher-agent

@@ -1,0 +1,44 @@
+---
+- name: Add GPG key 1 for Docker packages
+  apt_key: keyserver=hkp://p80.pool.sks-keyservers.net:80 id=9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+
+- name: Add GPG key 2 for Docker packages
+  apt_key: keyserver=hkp://p80.pool.sks-keyservers.net:80 id=58118E89F3A912897C070ADBF76221572C52609D
+
+- name: add repo for Docker packages
+  apt_repository:
+    repo: 'deb [arch=amd64] https://apt.dockerproject.org/repo ubuntu-xenial main'
+    state: present
+    update_cache: true
+
+- name: detect kernel version
+  command: uname -r
+  register: uname_kernel_version
+
+- name: install docker packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "linux-image-extra-{{uname_kernel_version.stdout}}"
+    - linux-image-extra-virtual
+    - "docker-engine={{docker_version}}~{{docker_version_distro}}"
+
+  # We don't want to upgrade the Docker engine past a version supported by Kubernetes
+- name: check if upgrades allowed for docker-engine package 
+  command: apt-mark showhold
+  register: held_packages
+  changed_when: false
+  
+- name: prevent upgrade of docker-engine package
+  command: apt-mark hold docker-engine
+  when: '"docker-engine" not in held_packages.stdout'
+
+- name: enable docker
+  service:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: install latest docker-compose
+  shell: "curl -L https://github.com/docker/compose/releases/download/{{docker_compose_version}}/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose"

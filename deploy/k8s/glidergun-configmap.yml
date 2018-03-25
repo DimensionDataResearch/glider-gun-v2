@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  glidergun
+  labels:
+    k8s-app: glidergun
+
+# Example values and keys, customise as required
+data:
+  storageclass:     'rook-block'
+
+  image_name_sql:   'microsoft/mssql-server-linux:2017-CU1'
+
+  cluster_fqdn:     'glider-gun.tintoy.io'
+
+  vault_endpoint:   'http://glidergun-vault-external.default.svc.cluster.local:8200'
+  vault_token:      '464320de-0831-bfcf-62ad-bba874fd0cbf'
