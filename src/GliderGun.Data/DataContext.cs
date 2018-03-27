@@ -41,5 +41,27 @@ namespace GliderGun.Data
         ///     The set of all <see cref="DeploymentParameter"/> entities.
         /// </summary>
         public virtual DbSet<DeploymentParameter> DeploymentParameters => Set<DeploymentParameter>();
+
+        /// <summary>
+        ///     The set of all <see cref="Workspace"/> entities.
+        /// </summary>
+        public virtual DbSet<Workspace> Workspaces => Set<Workspace>();
+
+        /// <summary>
+        ///     Ensure that the specified entity is not tracked by the <see cref="DataContext"/>.
+        /// </summary>
+        /// <param name="entity">
+        ///     The entity to detach.
+        /// </param>
+        /// <returns>
+        ///     The detached entity.
+        /// </returns>
+        public TEntity Detach<TEntity>(TEntity entity)
+            where TEntity : class
+        {
+            Entry(entity).State = EntityState.Detached;
+
+            return entity;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,21 +10,24 @@ namespace GliderGun.Data.Models
     public class Workspace
     {
         /// <summary>
-        ///     The workspace's unique Id.
+        ///     The workspace name.
         /// </summary>
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+        [Key, MaxLength(100)]
+        public string Name { get; set; }
 
         /// <summary>
-        ///     The workspace's current contents (if any), in ZIP format.
+        ///     The absolute path of the workspace's storage file (i.e. archive).
         /// </summary>
-        [MaxLength(2048 * 1024)]
-        public byte[] Content { get; set; }
+        public string StoreFile { get; set; }
 
         /// <summary>
-        ///     A concurrency-check token for the workspace (used for optimistic concurrency).
+        ///     Is the workspace currently checked out?
         /// </summary>
-        [ConcurrencyCheck]
-        public byte[] UpdateToken { get; set; }
+        public bool IsCheckedOut { get; set; }
+
+        /// <summary>
+        ///     The absolute path of the workspace's working directory (if checked out, otherwise <c>null</c>).
+        /// </summary>
+        public string WorkingDirectory { get; set; }
     }
 }
