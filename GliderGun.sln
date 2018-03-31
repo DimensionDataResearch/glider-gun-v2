@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.Data", "src\Glide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.Workspaces", "src\GliderGun.Workspaces\GliderGun.Workspaces.csproj", "{72E43921-7788-4A77-AB1D-389B5A097390}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GliderGun.DBTool", "src\tools\GliderGun.DBTool\GliderGun.DBTool.csproj", "{B22121D1-EC16-4EBA-9B03-C585AF7110FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,18 @@ Global
 		{72E43921-7788-4A77-AB1D-389B5A097390}.Release|x64.Build.0 = Release|Any CPU
 		{72E43921-7788-4A77-AB1D-389B5A097390}.Release|x86.ActiveCfg = Release|Any CPU
 		{72E43921-7788-4A77-AB1D-389B5A097390}.Release|x86.Build.0 = Release|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Debug|x64.Build.0 = Debug|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Debug|x86.Build.0 = Debug|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Release|x64.ActiveCfg = Release|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Release|x64.Build.0 = Release|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Release|x86.ActiveCfg = Release|Any CPU
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,6 +158,7 @@ Global
 		{91B8E15A-CB66-4F51-924B-AA97BA37DBF9} = {7AD71FB0-6424-4255-81B6-B8638541B515}
 		{07D6C047-52E3-4BD2-8308-6BDFA5C674A9} = {30436182-656E-40F6-BA5C-906BA5E6E53E}
 		{72E43921-7788-4A77-AB1D-389B5A097390} = {30436182-656E-40F6-BA5C-906BA5E6E53E}
+		{B22121D1-EC16-4EBA-9B03-C585AF7110FF} = {580BA5D6-364A-45EE-A52C-DBC21EBF3510}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3EC304B1-07DF-4424-98E7-19BB3DB69CD9}
